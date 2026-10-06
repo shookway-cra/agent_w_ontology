@@ -1,0 +1,5 @@
+{
+  "mcpServers": {
+    "simdb": { "command": "python", "args": ["mcp_servers/simdb_server.py"] }
+  }
+}

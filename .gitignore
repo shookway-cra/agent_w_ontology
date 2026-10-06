@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+
+# Run artifacts: keep each run's report.md / results.json / grades.json (evidence for RESULTS.md),
+# but not console logs, local helper scripts, or the run that crashed part-way (rerun as 20261005-171547).
+runs/*.log
+runs/keep-awake.ps1
+runs/20261005-165409/

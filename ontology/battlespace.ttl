@@ -1,0 +1,739 @@
+@prefix bs:   <http://example.org/battlespace#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+#  Battlespace ontology (TBox)
+#
+#  Describes the *kinds* of things that appear in AFSIM simulation output:
+#  munition types, platform types, and the vocabulary used to describe force
+#  structure. The scenario-specific order of battle lives in scenario_orbat.ttl.
+#
+#  ALIGNMENT WITH AFSIM - all of it is stated here and in the two other modules,
+#  as OWL; nothing is hard-coded in the tools that query it.
+#    afsim_alignment.ttl  every AFSIM type string is a bs:SimulationType
+#                         individual of the class it denotes (bs:simTypeName)
+#    scenario_orbat.ttl   every AFSIM platform is an individual of its platform
+#                         class (bs:simPlatformName), bs:assignedTo its unit
+#    Class facts (guidance, warhead, intended target) are owl:hasValue
+#    restrictions, so a reasoner gives them to every individual of the class.
+#    Coalition and platform nation are owl:propertyChainAxioms.
+#
+#  The usage guide and example queries served to agents are the skos:scopeNote
+#  and skos:example annotations on the ontology header below.
+#  All system data below is unclassified / open-source or notional.
+# =============================================================================
+
+<http://example.org/battlespace> a owl:Ontology ;
+    rdfs:label "Battlespace ontology for AFSIM output analysis" ;
+    owl:versionInfo "1.1" ;
+    rdfs:comment "Knowledge that is NOT in the AFSIM output: the munition type hierarchy (which weapons are air-to-air missiles, precision-guided, cluster munitions, anti-radiation...), the platform type hierarchy (fighters, SAM launchers, engagement radars, command posts...), and the scenario's force structure (chain of command, echelons, nations, coalitions)." ;
+    skos:scopeNote """REASONING IS ON: the endpoint holds the OWL-RL closure, so types, subclasses, the chain of command, inherited facets, coalitions and platform nations are already inferred - plain triple patterns are enough, no property paths needed.
+
+AFSIM things are individuals. Each AFSIM type string (platforms.type, events.weapon_type) is a bs:SimulationType individual that is an instance of its ontology class and every superclass, and has that class's facets (bs:guidance, bs:warheadType, bs:intendedTarget). Each AFSIM platform is an individual of its platform class, linked by bs:simulationType to the individual for its AFSIM type. So to find the AFSIM strings for any category, query instances: ?t a bs:SimulationType , <category> ; bs:simTypeName ?name. A platform's AFSIM name and type string: ?p bs:simPlatformName ?name ; bs:simulationType/bs:simTypeName ?type.
+
+Join keys - always put these literals in SQL, never IRI local names:
+  bs:simTypeName     == platforms.type, events.weapon_type, weapon_inventory.weapon_type (one class may have several alias strings)
+  bs:simPlatformName == platforms.name, events.platform, events.target
+  bs:simSideName     == platforms.side (on bs:Coalition individuals)
+
+Force structure: units (bs:MilitaryUnit) have bs:echelon, bs:nation, bs:service and are bs:directlySubordinateTo their parent unit; platforms are bs:assignedTo the one unit that owns them. Both are single steps. bs:subordinateTo is the inferred whole chain: use it for 'platforms or units under a unit at any depth'. Units and platforms carry inferred bs:coalition; platforms carry inferred bs:nation. bs:hasSubordinate is the inverse of bs:subordinateTo (unit -> everything under it).
+
+Unit functions are DEFINED classes the reasoner infers from equipment, e.g. bs:SAMBattalion (with subclasses bs:IntegratedSAMBattalion and bs:SHORADBattalion): query ?u a bs:SAMBattalion directly; their rdfs:comment states what each needs to be mission-capable.
+
+Start with ontology_overview.""" ;
+    skos:example """# exact AFSIM strings for every air-to-air missile (use them in SQL)
+SELECT ?name WHERE { ?t a bs:SimulationType , bs:AirToAirMissile ; bs:simTypeName ?name }""" ,
+        """# inherited facet: every AFSIM weapon string with a submunition (cluster) warhead
+SELECT ?name WHERE { ?t a bs:SimulationType ; bs:warheadType bs:Submunitions ; bs:simTypeName ?name }""" ,
+        """# Blue brigade-level units (brigade / regiment / wing), coalition inferred
+SELECT ?unit ?label WHERE { ?unit a bs:MilitaryUnit ; bs:echelon bs:Brigade ; bs:coalition bs:BlueCoalition ; rdfs:label ?label }""" ,
+        """# every AFSIM platform under each Blue brigade at ANY depth - use bs:subordinateTo, not bs:assignedTo
+SELECT ?label ?platform WHERE { ?unit bs:echelon bs:Brigade ; bs:coalition bs:BlueCoalition ; rdfs:label ?label .
+  ?p bs:subordinateTo ?unit ; bs:simPlatformName ?platform }""" ,
+        """# AFSIM platform names with their inferred nation and coalition
+SELECT ?platform ?nation ?coalition WHERE { ?p bs:simPlatformName ?platform ; bs:nation ?nation ; bs:coalition ?coalition }""" ,
+        """# platforms of a type category (here engagement radars): AFSIM name, AFSIM type and owning unit
+SELECT ?platform ?type ?unit WHERE { ?p a bs:EngagementRadar ; bs:simPlatformName ?platform ;
+  bs:simulationType/bs:simTypeName ?type ; bs:assignedTo ?u . ?u rdfs:label ?unit }""" ,
+        """# every Red SAM battalion (inferred class), its kind, and each platform with its air defence role and AFSIM type
+SELECT ?battalion ?kind ?platform ?type ?role WHERE { ?b a bs:SAMBattalion , ?kind ; bs:coalition bs:RedForce ; rdfs:label ?battalion .
+  VALUES ?kind { bs:IntegratedSAMBattalion bs:SHORADBattalion }
+  ?b bs:hasSubordinate ?p . ?p bs:simPlatformName ?platform ; bs:simulationType/bs:simTypeName ?type ; a ?role .
+  VALUES ?role { bs:SAMLauncher bs:EngagementRadar bs:AirDefenseCommandPost bs:SHORADSystem } }""" .
+
+# -----------------------------------------------------------------------------
+#  Properties
+# -----------------------------------------------------------------------------
+
+bs:simTypeName a owl:DatatypeProperty ;
+    rdfs:label "AFSIM type name" ;
+    rdfs:domain bs:SimulationType ;
+    rdfs:comment "Exact type string emitted by AFSIM (platforms.type, events.weapon_type, weapon_inventory.weapon_type), on a bs:SimulationType individual." .
+
+bs:simulationType a owl:ObjectProperty ;
+    rdfs:label "AFSIM type" ;
+    rdfs:range bs:SimulationType ;
+    rdfs:comment "Platform -> the bs:SimulationType individual for its AFSIM type (platforms.type). So a platform's AFSIM type string is ?p bs:simulationType/bs:simTypeName ?type." .
+
+bs:simPlatformName a owl:DatatypeProperty ;
+    rdfs:label "simulation platform name" ;
+    rdfs:comment "Exact platform name in the simulation output (platforms.name, events.platform, events.target)." .
+
+bs:simSideName a owl:DatatypeProperty ;
+    rdfs:label "simulation side name" ;
+    rdfs:comment "Exact side string in the simulation output (platforms.side)." .
+
+bs:guidance a owl:ObjectProperty ;
+    rdfs:label "guidance" ;
+    rdfs:range bs:GuidanceMethod ;
+    rdfs:comment "Guidance method of a munition (value is a bs:GuidanceMethod individual). Stated on classes as owl:hasValue restrictions, so it holds for every subclass and every AFSIM type individual of that class." .
+
+bs:warheadType a owl:ObjectProperty ;
+    rdfs:label "warhead type" ;
+    rdfs:range bs:WarheadType ;
+    rdfs:comment "Warhead / payload type of a munition (value is a bs:WarheadType individual). Stated on classes as owl:hasValue restrictions, so it holds for every subclass and every AFSIM type individual of that class." .
+
+bs:intendedTarget a owl:ObjectProperty ;
+    rdfs:label "intended target" ;
+    rdfs:range bs:TargetSet ;
+    rdfs:comment "Target set a munition is designed to engage (value is a bs:TargetSet individual). Stated on classes as owl:hasValue restrictions, so it holds for every subclass and every AFSIM type individual of that class." .
+
+bs:canCarry a owl:AnnotationProperty ;
+    rdfs:label "can carry" ;
+    rdfs:comment "Platform type (class) can carry / employ the munition type (class) in this scenario's loadouts." .
+
+bs:subordinateTo a owl:ObjectProperty , owl:TransitiveProperty ;
+    rdfs:label "subordinate to" ;
+    rdfs:comment "Whole chain of command: a platform or unit is subordinate to every unit above it. Inferred (transitive) from bs:assignedTo and bs:directlySubordinateTo." .
+
+bs:hasSubordinate a owl:ObjectProperty ;
+    owl:inverseOf bs:subordinateTo ;
+    rdfs:label "has subordinate" ;
+    rdfs:comment "Unit -> every unit and platform below it in the chain of command (inverse of bs:subordinateTo; inferred). Used to classify units by the equipment they command." .
+
+bs:directlySubordinateTo a owl:ObjectProperty ;
+    rdfs:subPropertyOf bs:subordinateTo ;
+    rdfs:label "directly subordinate to" ;
+    rdfs:comment "Unit -> its immediate parent unit. Not transitive." ;
+    rdfs:domain bs:MilitaryUnit ;
+    rdfs:range bs:MilitaryUnit .
+
+bs:assignedTo a owl:ObjectProperty ;
+    rdfs:subPropertyOf bs:subordinateTo ;
+    rdfs:label "assigned to" ;
+    rdfs:comment "Platform -> the unit that owns and operates it (lowest echelon only). Not transitive." ;
+    rdfs:range bs:MilitaryUnit .
+
+bs:echelon a owl:ObjectProperty ;
+    rdfs:label "echelon" ;
+    rdfs:domain bs:MilitaryUnit ;
+    rdfs:range bs:Echelon .
+
+bs:nation a owl:ObjectProperty ;
+    rdfs:label "nation" ;
+    rdfs:comment "Nation that owns a unit (asserted) or a platform (inferred from the unit it is assigned to)." ;
+    rdfs:range bs:Nation ;
+    owl:propertyChainAxiom ( bs:assignedTo bs:nation ) .
+
+bs:service a owl:ObjectProperty ;
+    rdfs:label "service" ;
+    rdfs:domain bs:MilitaryUnit ;
+    rdfs:range bs:Service .
+
+bs:memberOf a owl:ObjectProperty ;
+    rdfs:label "member of" ;
+    rdfs:domain bs:Nation ;
+    rdfs:range bs:Coalition .
+
+bs:coalition a owl:ObjectProperty ;
+    rdfs:label "coalition" ;
+    rdfs:comment "Coalition (side) a unit or platform belongs to. Inferred, never asserted: a unit's nation's coalition, and for anything in a chain of command, its superior's coalition." ;
+    rdfs:range bs:Coalition ;
+    owl:propertyChainAxiom ( bs:nation bs:memberOf ) , ( bs:subordinateTo bs:coalition ) .
+
+bs:SimulationType a owl:Class ;
+    rdfs:label "AFSIM type" ;
+    rdfs:comment "An individual standing for one type string emitted by AFSIM (platforms.type / events.weapon_type), carrying it in bs:simTypeName. Each is an instance of the ontology class it denotes, so with reasoning it is also an instance of every superclass and inherits that class's guidance, warhead and intended-target facets. Defined in afsim_alignment.ttl." .
+
+bs:echelonRank a owl:DatatypeProperty ;
+    rdfs:label "echelon rank" ;
+    rdfs:comment "Ordering of echelons; larger = higher in the chain of command." ;
+    rdfs:domain bs:Echelon ;
+    rdfs:range xsd:integer .
+
+# -----------------------------------------------------------------------------
+#  Organisational vocabulary
+# -----------------------------------------------------------------------------
+
+bs:MilitaryUnit a owl:Class ; rdfs:label "Military unit" .
+bs:Echelon      a owl:Class ; rdfs:label "Echelon" .
+bs:Nation       a owl:Class ; rdfs:label "Nation" .
+bs:Coalition    a owl:Class ; rdfs:label "Coalition / side" .
+bs:Service      a owl:Class ; rdfs:label "Military service" .
+
+bs:JointForce a bs:Echelon ; rdfs:label "Joint force" ; bs:echelonRank 9 .
+bs:Component  a bs:Echelon ; rdfs:label "Component command / Army / Fleet" ; bs:echelonRank 8 .
+bs:Corps      a bs:Echelon ; rdfs:label "Corps" ; bs:echelonRank 7 .
+bs:Division   a bs:Echelon ; rdfs:label "Division" ; bs:echelonRank 6 .
+bs:Brigade    a bs:Echelon ; rdfs:label "Brigade / Regiment / Wing" ; skos:altLabel "Regiment" , "Wing" ; bs:echelonRank 5 .
+bs:Battalion  a bs:Echelon ; rdfs:label "Battalion / Squadron / Ship" ; skos:altLabel "Squadron" ; bs:echelonRank 4 .
+bs:Company    a bs:Echelon ; rdfs:label "Company / Battery / Troop / Flight" ; skos:altLabel "Battery" , "Flight" ; bs:echelonRank 3 .
+bs:Platoon    a bs:Echelon ; rdfs:label "Platoon / Section / Team" ; bs:echelonRank 2 .
+
+bs:Air      a bs:Service ; rdfs:label "Air Force" .
+bs:Land     a bs:Service ; rdfs:label "Army / Land Forces" .
+bs:Maritime a bs:Service ; rdfs:label "Navy" .
+
+# -----------------------------------------------------------------------------
+#  Munition facets
+# -----------------------------------------------------------------------------
+
+bs:GuidanceMethod a owl:Class ; rdfs:label "Guidance method" .
+bs:Unguided            a bs:GuidanceMethod ; rdfs:label "Unguided / ballistic" .
+bs:GPS_INS             a bs:GuidanceMethod ; rdfs:label "GPS-aided inertial" .
+bs:SemiActiveLaser     a bs:GuidanceMethod ; rdfs:label "Semi-active laser" .
+bs:ActiveRadar         a bs:GuidanceMethod ; rdfs:label "Active radar homing" .
+bs:SemiActiveRadar     a bs:GuidanceMethod ; rdfs:label "Semi-active radar homing" .
+bs:InfraredHoming      a bs:GuidanceMethod ; rdfs:label "Infrared / imaging-infrared homing" .
+bs:PassiveRadarHoming  a bs:GuidanceMethod ; rdfs:label "Passive radar (anti-radiation) homing" .
+bs:CommandGuidance     a bs:GuidanceMethod ; rdfs:label "Radio command guidance" .
+bs:SACLOS              a bs:GuidanceMethod ; rdfs:label "SACLOS (wire / laser beam riding)" .
+bs:MultiMode           a bs:GuidanceMethod ; rdfs:label "Multi-mode seeker" .
+bs:ElectroOpticalDatalink a bs:GuidanceMethod ; rdfs:label "Electro-optical with operator datalink" .
+
+bs:WarheadType a owl:Class ; rdfs:label "Warhead type" .
+bs:Unitary            a bs:WarheadType ; rdfs:label "Unitary HE / blast-frag" .
+bs:Submunitions       a bs:WarheadType ; rdfs:label "Submunitions (cluster / ICM / DPICM)" ;
+    rdfs:comment "Any payload that dispenses multiple submunitions. Munitions with this warhead are cluster munitions." .
+bs:PreformedFragments a bs:WarheadType ; rdfs:label "Pre-formed fragment (alternative warhead)" ;
+    rdfs:comment "Area-effect warhead of tungsten pellets with no submunitions; NOT a cluster munition." .
+bs:KineticPenetrator  a bs:WarheadType ; rdfs:label "Kinetic energy penetrator" .
+bs:ShapedCharge       a bs:WarheadType ; rdfs:label "Shaped charge / tandem HEAT" .
+bs:HitToKill          a bs:WarheadType ; rdfs:label "Hit-to-kill" .
+
+bs:TargetSet a owl:Class ; rdfs:label "Target set" .
+bs:AirTargets       a bs:TargetSet ; rdfs:label "Air targets (aircraft, UAVs)" .
+bs:MissileTargets   a bs:TargetSet ; rdfs:label "Missile / munition targets (C-RAM, cruise and ballistic missile defence)" .
+bs:LandTargets      a bs:TargetSet ; rdfs:label "Land targets" .
+bs:ArmoredTargets   a bs:TargetSet ; rdfs:label "Armored vehicles" .
+bs:MaritimeTargets  a bs:TargetSet ; rdfs:label "Ships" .
+bs:EmitterTargets   a bs:TargetSet ; rdfs:label "Radars / emitters (SEAD)" .
+
+# -----------------------------------------------------------------------------
+#  MUNITION HIERARCHY
+# -----------------------------------------------------------------------------
+
+bs:Munition a owl:Class ;
+    rdfs:label "Munition" ;
+    rdfs:comment "Any expendable weapon released, fired or launched by a platform." .
+
+# ---- Cross-cutting classes ---------------------------------------------------
+
+bs:PrecisionGuidedMunition a owl:Class ;
+    rdfs:subClassOf bs:Munition ;
+    rdfs:label "Precision-guided munition (PGM)" ;
+    skos:altLabel "PGM" , "smart weapon" , "guided munition" ;
+    rdfs:comment "Any munition that actively guides to its target after release: all missiles, guided bombs, guided rockets, guided artillery projectiles and loitering munitions." .
+
+bs:UnguidedMunition a owl:Class ;
+    rdfs:subClassOf bs:Munition ;
+    rdfs:label "Unguided munition" ;
+    skos:altLabel "dumb munition" ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:Unguided ] .
+
+bs:ClusterMunition a owl:Class ;
+    rdfs:subClassOf bs:Munition ;
+    rdfs:label "Cluster munition" ;
+    skos:altLabel "submunition weapon" , "ICM" , "DPICM" , "cargo munition" ;
+    rdfs:comment "Munition that disperses submunitions. Every class with warheadType bs:Submunitions is asserted a subclass of this." ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:warheadType ; owl:hasValue bs:Submunitions ] .
+
+# ---- Missiles ----------------------------------------------------------------
+
+bs:Missile a owl:Class ;
+    rdfs:subClassOf bs:Munition , bs:PrecisionGuidedMunition ;
+    rdfs:label "Missile" .
+
+bs:AirToAirMissile a owl:Class ;
+    rdfs:subClassOf bs:Missile ;
+    rdfs:label "Air-to-air missile (AAM)" ;
+    skos:altLabel "AAM" ;
+    rdfs:comment "Missile launched from an aircraft at an air target. Surface-launched derivatives of AAM airframes (e.g. AMRAAM-ER) are surface-to-air missiles, not AAMs." ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:intendedTarget ; owl:hasValue bs:AirTargets ] .
+
+bs:InfraredAAM a owl:Class ;
+    rdfs:subClassOf bs:AirToAirMissile ;
+    rdfs:label "Infrared-guided AAM (short range)" ;
+    skos:altLabel "WVR AAM" , "dogfight missile" ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:InfraredHoming ] .
+
+bs:RadarGuidedAAM a owl:Class ;
+    rdfs:subClassOf bs:AirToAirMissile ;
+    rdfs:label "Radar-guided AAM (beyond visual range)" ;
+    skos:altLabel "BVRAAM" ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:ActiveRadar ] .
+
+bs:AIM-9X a owl:Class ; rdfs:subClassOf bs:InfraredAAM ;
+    rdfs:label "AIM-9X Sidewinder Block II" ; skos:altLabel "Sidewinder" .
+bs:AIM-132 a owl:Class ; rdfs:subClassOf bs:InfraredAAM ;
+    rdfs:label "AIM-132 ASRAAM" ; skos:altLabel "ASRAAM" .
+bs:R-73M a owl:Class ; rdfs:subClassOf bs:InfraredAAM ;
+    rdfs:label "R-73M (AA-11 Archer)" ; skos:altLabel "AA-11 Archer" .
+bs:KestrelAAM a owl:Class ; rdfs:subClassOf bs:InfraredAAM ;
+    rdfs:label "Kestrel compact IR AAM (notional)" ;
+    rdfs:comment "Notional scenario weapon: compact imaging-IR dogfight missile carried in quantity by F-15EX." .
+
+bs:AIM-120D a owl:Class ; rdfs:subClassOf bs:RadarGuidedAAM ;
+    rdfs:label "AIM-120D AMRAAM" ; skos:altLabel "AMRAAM" , "Slammer" .
+bs:AIM-120C-7 a owl:Class ; rdfs:subClassOf bs:RadarGuidedAAM ;
+    rdfs:label "AIM-120C-7 AMRAAM" ; skos:altLabel "AMRAAM" .
+bs:Meteor a owl:Class ; rdfs:subClassOf bs:RadarGuidedAAM ;
+    rdfs:label "MBDA Meteor (ramjet BVRAAM)" .
+bs:R-77-1 a owl:Class ; rdfs:subClassOf bs:RadarGuidedAAM ;
+    rdfs:label "R-77-1 (AA-12B Adder)" ; skos:altLabel "AA-12 Adder" , "RVV-SD" .
+bs:R-37M a owl:Class ; rdfs:subClassOf bs:RadarGuidedAAM ;
+    rdfs:label "R-37M (AA-13 Axehead)" ; skos:altLabel "AA-13 Axehead" , "RVV-BD" , "izdeliye 610M" .
+
+bs:SurfaceToAirMissile a owl:Class ;
+    rdfs:subClassOf bs:Missile ;
+    rdfs:label "Surface-to-air missile (SAM)" ;
+    skos:altLabel "SAM" , "interceptor" ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:intendedTarget ; owl:hasValue bs:AirTargets ] , [ a owl:Restriction ; owl:onProperty bs:intendedTarget ; owl:hasValue bs:MissileTargets ] .
+
+bs:LongRangeSAM   a owl:Class ; rdfs:subClassOf bs:SurfaceToAirMissile ; rdfs:label "Long-range SAM" .
+bs:MediumRangeSAM a owl:Class ; rdfs:subClassOf bs:SurfaceToAirMissile ; rdfs:label "Medium-range SAM" .
+bs:ShortRangeSAM  a owl:Class ; rdfs:subClassOf bs:SurfaceToAirMissile ; rdfs:label "Short-range SAM / SHORAD missile" .
+bs:BallisticMissileInterceptor a owl:Class ; rdfs:subClassOf bs:SurfaceToAirMissile ;
+    rdfs:label "Ballistic missile defence interceptor" ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:warheadType ; owl:hasValue bs:HitToKill ] .
+
+bs:48N6E3 a owl:Class ; rdfs:subClassOf bs:LongRangeSAM ;
+    rdfs:label "48N6E3 (S-400)" ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:SemiActiveRadar ] .
+bs:40N6E a owl:Class ; rdfs:subClassOf bs:LongRangeSAM ;
+    rdfs:label "40N6E very-long-range SAM (S-400)" ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:ActiveRadar ] .
+bs:9M96E2 a owl:Class ; rdfs:subClassOf bs:MediumRangeSAM ;
+    rdfs:label "9M96E2 (S-400 / S-350)" ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:ActiveRadar ] .
+bs:9M317M a owl:Class ; rdfs:subClassOf bs:MediumRangeSAM ;
+    rdfs:label "9M317M (Buk-M3)" ; skos:altLabel "SA-17 Grizzly" ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:SemiActiveRadar ] .
+bs:57E6E a owl:Class ; rdfs:subClassOf bs:ShortRangeSAM ;
+    rdfs:label "57E6E (Pantsir-S1)" ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:CommandGuidance ] .
+bs:9M338K a owl:Class ; rdfs:subClassOf bs:ShortRangeSAM ;
+    rdfs:label "9M338K (Tor-M2)" ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:CommandGuidance ] .
+bs:PAC-3_MSE a owl:Class ; rdfs:subClassOf bs:LongRangeSAM , bs:BallisticMissileInterceptor ;
+    rdfs:label "PAC-3 MSE (Patriot)" ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:ActiveRadar ] .
+bs:GEM-T a owl:Class ; rdfs:subClassOf bs:LongRangeSAM ;
+    rdfs:label "MIM-104E GEM-T (Patriot)" ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:SemiActiveRadar ] .
+bs:AMRAAM-ER a owl:Class ; rdfs:subClassOf bs:MediumRangeSAM ;
+    rdfs:label "AMRAAM-ER (NASAMS)" ;
+    rdfs:comment "Surface-launched extended-range derivative of AMRAAM fired from NASAMS. It is a SAM, not an air-to-air missile." ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:ActiveRadar ] .
+bs:FIM-92K a owl:Class ; rdfs:subClassOf bs:ShortRangeSAM ;
+    rdfs:label "FIM-92K Stinger" ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:InfraredHoming ] .
+bs:SM-2 a owl:Class ; rdfs:subClassOf bs:LongRangeSAM ;
+    rdfs:label "RIM-66 SM-2 Block IIIC" ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:ActiveRadar ] .
+bs:SM-6 a owl:Class ; rdfs:subClassOf bs:LongRangeSAM , bs:BallisticMissileInterceptor , bs:AntiShipMissile ;
+    rdfs:label "RIM-174 SM-6 Block IA" ;
+    rdfs:comment "Multi-mission: anti-air, terminal BMD and anti-surface." ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:ActiveRadar ] .
+bs:ESSM a owl:Class ; rdfs:subClassOf bs:MediumRangeSAM ;
+    rdfs:label "RIM-162D ESSM Block 2" ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:ActiveRadar ] .
+
+bs:AirToSurfaceMissile a owl:Class ;
+    rdfs:subClassOf bs:Missile ;
+    rdfs:label "Air-to-surface missile" ;
+    skos:altLabel "ASM" .
+
+bs:AntiRadiationMissile a owl:Class ;
+    rdfs:subClassOf bs:AirToSurfaceMissile ;
+    rdfs:label "Anti-radiation missile (ARM)" ;
+    skos:altLabel "ARM" , "SEAD missile" ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:PassiveRadarHoming ] ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:intendedTarget ; owl:hasValue bs:EmitterTargets ] .
+
+bs:AGM-88E a owl:Class ; rdfs:subClassOf bs:AntiRadiationMissile ;
+    rdfs:label "AGM-88E AARGM" ; skos:altLabel "HARM" .
+bs:AGM-88G a owl:Class ; rdfs:subClassOf bs:AntiRadiationMissile ;
+    rdfs:label "AGM-88G AARGM-ER" .
+bs:Kh-31PD a owl:Class ; rdfs:subClassOf bs:AntiRadiationMissile ;
+    rdfs:label "Kh-31PD (AS-17 Krypton)" ; skos:altLabel "AS-17 Krypton" .
+
+bs:CruiseMissile a owl:Class ;
+    rdfs:subClassOf bs:Missile ;
+    rdfs:label "Cruise missile" ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:warheadType ; owl:hasValue bs:Unitary ] .
+
+bs:LandAttackCruiseMissile a owl:Class ;
+    rdfs:subClassOf bs:CruiseMissile ;
+    rdfs:label "Land-attack cruise missile" ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:GPS_INS ] ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:intendedTarget ; owl:hasValue bs:LandTargets ] .
+
+bs:JASSM-ER a owl:Class ; rdfs:subClassOf bs:LandAttackCruiseMissile , bs:AirToSurfaceMissile ;
+    rdfs:label "AGM-158B JASSM-ER" .
+bs:Kh-59MK2 a owl:Class ; rdfs:subClassOf bs:LandAttackCruiseMissile , bs:AirToSurfaceMissile ;
+    rdfs:label "Kh-59MK2" .
+bs:Tomahawk a owl:Class ; rdfs:subClassOf bs:LandAttackCruiseMissile ;
+    rdfs:label "BGM-109E Tomahawk Block IV" ; skos:altLabel "TLAM" .
+bs:3M14 a owl:Class ; rdfs:subClassOf bs:LandAttackCruiseMissile ;
+    rdfs:label "3M14 Kalibr (land attack)" ; skos:altLabel "SS-N-30A" , "Kalibr-NK" .
+bs:9M728 a owl:Class ; rdfs:subClassOf bs:LandAttackCruiseMissile ;
+    rdfs:label "9M728 (Iskander-K)" ; skos:altLabel "SSC-7" .
+
+bs:AntiShipMissile a owl:Class ;
+    rdfs:subClassOf bs:Missile ;
+    rdfs:label "Anti-ship missile" ;
+    skos:altLabel "ASCM" ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:intendedTarget ; owl:hasValue bs:MaritimeTargets ] .
+
+bs:NSM a owl:Class ; rdfs:subClassOf bs:AntiShipMissile , bs:CruiseMissile ;
+    rdfs:label "Naval Strike Missile" ;
+    skos:altLabel "NSM" , "RGM-184A" ;
+    rdfs:comment "Norwegian federate names it NSM_BLK1A; the US Navy model library uses the US designation RGM-184A." ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:InfraredHoming ] .
+bs:P-800 a owl:Class ; rdfs:subClassOf bs:AntiShipMissile , bs:CruiseMissile ;
+    rdfs:label "P-800 Oniks (SS-N-26 Strobile)" ; skos:altLabel "Oniks" , "Yakhont" , "3M55" ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:ActiveRadar ] .
+bs:3M54 a owl:Class ; rdfs:subClassOf bs:AntiShipMissile , bs:CruiseMissile ;
+    rdfs:label "3M54 Kalibr (anti-ship)" ; skos:altLabel "SS-N-27 Sizzler" ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:ActiveRadar ] .
+
+bs:BallisticMissile a owl:Class ;
+    rdfs:subClassOf bs:Missile ;
+    rdfs:label "Surface-to-surface ballistic missile" ;
+    skos:altLabel "SRBM" ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:GPS_INS ] ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:intendedTarget ; owl:hasValue bs:LandTargets ] .
+
+bs:9M723 a owl:Class ; rdfs:subClassOf bs:BallisticMissile ;
+    rdfs:label "9M723 (Iskander-M)" ; skos:altLabel "SS-26 Stone" ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:warheadType ; owl:hasValue bs:Unitary ] .
+bs:PrSM a owl:Class ; rdfs:subClassOf bs:BallisticMissile ;
+    rdfs:label "Precision Strike Missile Increment 1" ; skos:altLabel "PrSM" ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:warheadType ; owl:hasValue bs:Unitary ] .
+bs:ATACMS_BlkIA a owl:Class ; rdfs:subClassOf bs:BallisticMissile , bs:ClusterMunition ;
+    rdfs:label "MGM-140B ATACMS Block IA" ;
+    skos:altLabel "ATACMS" ;
+    rdfs:comment "Carries ~300 M74 APAM submunitions." ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:warheadType ; owl:hasValue bs:Submunitions ] .
+
+bs:AntiTankGuidedMissile a owl:Class ;
+    rdfs:subClassOf bs:Missile ;
+    rdfs:label "Anti-tank guided missile (ATGM)" ;
+    skos:altLabel "ATGM" ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:warheadType ; owl:hasValue bs:ShapedCharge ] ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:intendedTarget ; owl:hasValue bs:ArmoredTargets ] .
+
+bs:GunLaunchedATGM a owl:Class ;
+    rdfs:subClassOf bs:AntiTankGuidedMissile ;
+    rdfs:label "Gun/barrel-launched ATGM" ;
+    rdfs:comment "Guided missile fired through a tank or IFV main gun." ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:SACLOS ] .
+
+bs:BGM-71F a owl:Class ; rdfs:subClassOf bs:AntiTankGuidedMissile ;
+    rdfs:label "BGM-71F TOW-2B" ; skos:altLabel "TOW" ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:SACLOS ] .
+bs:9M133M-2 a owl:Class ; rdfs:subClassOf bs:AntiTankGuidedMissile ;
+    rdfs:label "9M133M-2 Kornet-M" ; skos:altLabel "AT-14 Spriggan" ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:SACLOS ] .
+bs:9M119M a owl:Class ; rdfs:subClassOf bs:GunLaunchedATGM ;
+    rdfs:label "9M119M Refleks-M (tank-gun-launched)" ; skos:altLabel "AT-11 Sniper" .
+bs:9M117M1 a owl:Class ; rdfs:subClassOf bs:GunLaunchedATGM ;
+    rdfs:label "9M117M1 Arkan (100 mm gun-launched)" ; skos:altLabel "AT-10 Stabber" .
+bs:AGM-114R a owl:Class ; rdfs:subClassOf bs:AntiTankGuidedMissile , bs:AirToSurfaceMissile ;
+    rdfs:label "AGM-114R Hellfire Romeo" ; skos:altLabel "Hellfire" ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:SemiActiveLaser ] .
+bs:AGM-179 a owl:Class ; rdfs:subClassOf bs:AntiTankGuidedMissile , bs:AirToSurfaceMissile ;
+    rdfs:label "AGM-179 JAGM" ; skos:altLabel "JAGM" ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:MultiMode ] .
+bs:9M127-1 a owl:Class ; rdfs:subClassOf bs:AntiTankGuidedMissile , bs:AirToSurfaceMissile ;
+    rdfs:label "9M127-1 Vikhr-M" ; skos:altLabel "AT-16 Scallion" ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:SACLOS ] .
+
+# ---- Bombs -------------------------------------------------------------------
+
+bs:Bomb a owl:Class ; rdfs:subClassOf bs:Munition ; rdfs:label "Aerial bomb" ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:intendedTarget ; owl:hasValue bs:LandTargets ] .
+
+bs:GuidedBomb a owl:Class ;
+    rdfs:subClassOf bs:Bomb , bs:PrecisionGuidedMunition ;
+    rdfs:label "Guided bomb" ;
+    skos:altLabel "smart bomb" , "glide bomb" ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:warheadType ; owl:hasValue bs:Unitary ] .
+
+bs:LaserGuidedBomb     a owl:Class ; rdfs:subClassOf bs:GuidedBomb ; rdfs:label "Laser-guided bomb (LGB)" ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:SemiActiveLaser ] .
+bs:SatelliteGuidedBomb a owl:Class ; rdfs:subClassOf bs:GuidedBomb ; rdfs:label "GPS/INS-guided bomb" ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:GPS_INS ] .
+bs:MultiModeGuidedBomb a owl:Class ; rdfs:subClassOf bs:GuidedBomb ; rdfs:label "Multi-mode guided bomb" ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:MultiMode ] .
+
+bs:GBU-12 a owl:Class ; rdfs:subClassOf bs:LaserGuidedBomb ;
+    rdfs:label "GBU-12 Paveway II" .
+bs:GBU-31 a owl:Class ; rdfs:subClassOf bs:SatelliteGuidedBomb ;
+    rdfs:label "GBU-31(V)3 JDAM" ; skos:altLabel "JDAM" .
+bs:GBU-39 a owl:Class ; rdfs:subClassOf bs:SatelliteGuidedBomb ;
+    rdfs:label "GBU-39 Small Diameter Bomb" ; skos:altLabel "SDB" .
+bs:GBU-53 a owl:Class ; rdfs:subClassOf bs:MultiModeGuidedBomb ;
+    rdfs:label "GBU-53/B StormBreaker" ; skos:altLabel "SDB II" .
+bs:TridentGlideKit a owl:Class ; rdfs:subClassOf bs:SatelliteGuidedBomb ;
+    rdfs:label "Trident glide kit (notional)" ;
+    rdfs:comment "Notional scenario weapon: wing + GPS/INS tail kit fitted to a 500 lb general-purpose bomb." .
+bs:KAB-500S a owl:Class ; rdfs:subClassOf bs:SatelliteGuidedBomb ;
+    rdfs:label "KAB-500S-E" .
+bs:KAB-20S a owl:Class ; rdfs:subClassOf bs:SatelliteGuidedBomb ;
+    rdfs:label "KAB-20S small guided bomb (UAV-launched)" .
+
+bs:UnguidedBomb a owl:Class ; rdfs:subClassOf bs:Bomb , bs:UnguidedMunition ; rdfs:label "Unguided general-purpose bomb" .
+bs:FAB-500M62 a owl:Class ; rdfs:subClassOf bs:UnguidedBomb ;
+    rdfs:label "FAB-500M-62" ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:warheadType ; owl:hasValue bs:Unitary ] .
+
+bs:ClusterBomb a owl:Class ; rdfs:subClassOf bs:Bomb , bs:ClusterMunition , bs:UnguidedMunition ;
+    rdfs:label "Cluster bomb (dispenser)" .
+bs:RBK-500_SPBE a owl:Class ; rdfs:subClassOf bs:ClusterBomb ;
+    rdfs:label "RBK-500 SPBE-D" ;
+    rdfs:comment "Unguided dispenser carrying 15 sensor-fuzed anti-armor submunitions." .
+
+# ---- Rockets -----------------------------------------------------------------
+
+bs:Rocket a owl:Class ; rdfs:subClassOf bs:Munition ; rdfs:label "Rocket" .
+
+bs:GuidedRocket a owl:Class ;
+    rdfs:subClassOf bs:Rocket , bs:PrecisionGuidedMunition ;
+    rdfs:label "Guided rocket" .
+
+bs:APKWS a owl:Class ; rdfs:subClassOf bs:GuidedRocket ;
+    rdfs:label "APKWS II (laser-guided 70 mm rocket)" ;
+    rdfs:comment "Hydra-70 rocket with a mid-body laser guidance section." ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:SemiActiveLaser ] ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:warheadType ; owl:hasValue bs:Unitary ] .
+bs:GMLRS_Unitary a owl:Class ; rdfs:subClassOf bs:GuidedRocket ;
+    rdfs:label "M31A2 GMLRS Unitary" ; skos:altLabel "GMLRS" ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:GPS_INS ] ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:warheadType ; owl:hasValue bs:Unitary ] .
+bs:GMLRS_AW a owl:Class ; rdfs:subClassOf bs:GuidedRocket ;
+    rdfs:label "M30A2 GMLRS Alternative Warhead" ; skos:altLabel "GMLRS-AW" ;
+    rdfs:comment "Replaced the M30 DPICM rocket. Pre-formed tungsten fragments, NO submunitions: not a cluster munition." ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:GPS_INS ] ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:warheadType ; owl:hasValue bs:PreformedFragments ] .
+bs:9M542 a owl:Class ; rdfs:subClassOf bs:GuidedRocket ;
+    rdfs:label "9M542 guided rocket (Tornado-S)" ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:GPS_INS ] ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:warheadType ; owl:hasValue bs:Unitary ] .
+
+bs:UnguidedRocket a owl:Class ; rdfs:subClassOf bs:Rocket , bs:UnguidedMunition ; rdfs:label "Unguided rocket" .
+bs:Hydra70_M151 a owl:Class ; rdfs:subClassOf bs:UnguidedRocket ;
+    rdfs:label "Hydra-70 M151 HE" ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:warheadType ; owl:hasValue bs:Unitary ] .
+bs:S-8KOM a owl:Class ; rdfs:subClassOf bs:UnguidedRocket ;
+    rdfs:label "S-8KOM 80 mm rocket" ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:warheadType ; owl:hasValue bs:ShapedCharge ] .
+bs:9M55K a owl:Class ; rdfs:subClassOf bs:UnguidedRocket , bs:ClusterMunition ;
+    rdfs:label "9M55K 300 mm cargo rocket" ;
+    rdfs:comment "Carries 72 9N235 fragmentation submunitions." .
+bs:Burya12 a owl:Class ; rdfs:subClassOf bs:UnguidedRocket , bs:ClusterMunition ;
+    rdfs:label "Burya-12 cargo rocket (notional)" ;
+    rdfs:comment "Notional scenario weapon: 300 mm rocket dispensing anti-armor submunitions." .
+
+# ---- Artillery projectiles ---------------------------------------------------
+
+bs:ArtilleryProjectile a owl:Class ; rdfs:subClassOf bs:Munition ; rdfs:label "Artillery projectile" ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:intendedTarget ; owl:hasValue bs:LandTargets ] .
+
+bs:GuidedProjectile a owl:Class ;
+    rdfs:subClassOf bs:ArtilleryProjectile , bs:PrecisionGuidedMunition ;
+    rdfs:label "Guided artillery projectile" ;
+    skos:altLabel "precision artillery" .
+
+bs:M982 a owl:Class ; rdfs:subClassOf bs:GuidedProjectile ;
+    rdfs:label "M982A1 Excalibur 155 mm" ; skos:altLabel "Excalibur" ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:GPS_INS ] ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:warheadType ; owl:hasValue bs:Unitary ] .
+bs:Krasnopol a owl:Class ; rdfs:subClassOf bs:GuidedProjectile ;
+    rdfs:label "3OF39 Krasnopol 152 mm" ; skos:altLabel "Krasnopol" ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:SemiActiveLaser ] ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:warheadType ; owl:hasValue bs:Unitary ] .
+
+bs:UnguidedProjectile a owl:Class ; rdfs:subClassOf bs:ArtilleryProjectile , bs:UnguidedMunition ; rdfs:label "Conventional artillery projectile" .
+bs:M795 a owl:Class ; rdfs:subClassOf bs:UnguidedProjectile ;
+    rdfs:label "M795 155 mm HE" ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:warheadType ; owl:hasValue bs:Unitary ] .
+bs:XM1113 a owl:Class ; rdfs:subClassOf bs:UnguidedProjectile ;
+    rdfs:label "XM1113 155 mm rocket-assisted HE" ;
+    rdfs:comment "Extended-range rocket-assisted projectile. Unguided." ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:warheadType ; owl:hasValue bs:Unitary ] .
+bs:3OF45 a owl:Class ; rdfs:subClassOf bs:UnguidedProjectile ;
+    rdfs:label "3OF45 152 mm HE-FRAG" ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:warheadType ; owl:hasValue bs:Unitary ] .
+bs:3O23 a owl:Class ; rdfs:subClassOf bs:UnguidedProjectile , bs:ClusterMunition ;
+    rdfs:label "3-O-23 152 mm cargo projectile (ICM)" ;
+    rdfs:comment "Carries 42 3-O-16 HEAT-frag submunitions." .
+
+# ---- Direct-fire gun ammunition ---------------------------------------------
+
+bs:DirectFireAmmunition a owl:Class ; rdfs:subClassOf bs:UnguidedMunition ; rdfs:label "Direct-fire gun ammunition" .
+bs:KineticEnergyRound a owl:Class ; rdfs:subClassOf bs:DirectFireAmmunition ;
+    rdfs:label "APFSDS kinetic energy round" ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:warheadType ; owl:hasValue bs:KineticPenetrator ] ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:intendedTarget ; owl:hasValue bs:ArmoredTargets ] .
+bs:HEATRound a owl:Class ; rdfs:subClassOf bs:DirectFireAmmunition ;
+    rdfs:label "HEAT / multi-purpose gun round" ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:warheadType ; owl:hasValue bs:ShapedCharge ] .
+bs:HEFragRound a owl:Class ; rdfs:subClassOf bs:DirectFireAmmunition ;
+    rdfs:label "HE-FRAG gun round" ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:warheadType ; owl:hasValue bs:Unitary ] .
+
+bs:M829A4  a owl:Class ; rdfs:subClassOf bs:KineticEnergyRound ; rdfs:label "M829A4 120 mm APFSDS-T" .
+bs:3BM60   a owl:Class ; rdfs:subClassOf bs:KineticEnergyRound ; rdfs:label "3BM60 Svinets-2 125 mm APFSDS" .
+bs:M919    a owl:Class ; rdfs:subClassOf bs:KineticEnergyRound ; rdfs:label "M919 25 mm APFSDS-T" .
+bs:3UBR8   a owl:Class ; rdfs:subClassOf bs:KineticEnergyRound ; rdfs:label "3UBR8 30 mm APDS" .
+bs:M830A1  a owl:Class ; rdfs:subClassOf bs:HEATRound ; rdfs:label "M830A1 120 mm MPAT" .
+bs:3OF26   a owl:Class ; rdfs:subClassOf bs:HEFragRound ; rdfs:label "3OF26 125 mm HE-FRAG" .
+
+# ---- Loitering munitions -----------------------------------------------------
+
+bs:LoiteringMunition a owl:Class ;
+    rdfs:subClassOf bs:PrecisionGuidedMunition ;
+    rdfs:label "Loitering munition" ;
+    skos:altLabel "kamikaze drone" , "suicide drone" , "one-way attack UAS" ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:warheadType ; owl:hasValue bs:Unitary ] ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:intendedTarget ; owl:hasValue bs:LandTargets ] .
+
+bs:OneWayAttackUAV a owl:Class ;
+    rdfs:subClassOf bs:LoiteringMunition ;
+    rdfs:label "Long-range one-way attack UAV" ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:GPS_INS ] .
+
+bs:Switchblade600 a owl:Class ; rdfs:subClassOf bs:LoiteringMunition ;
+    rdfs:label "Switchblade 600" ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:ElectroOpticalDatalink ] .
+bs:Lancet3 a owl:Class ; rdfs:subClassOf bs:LoiteringMunition ;
+    rdfs:label "ZALA Lancet-3" ; skos:altLabel "Lancet" , "izdeliye 52" ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:ElectroOpticalDatalink ] .
+bs:VoronK a owl:Class ; rdfs:subClassOf bs:LoiteringMunition ;
+    rdfs:label "Voron-K loitering munition (notional)" ;
+    rdfs:comment "Notional scenario weapon: tube-launched loitering munition with anti-armor warhead." ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bs:guidance ; owl:hasValue bs:ElectroOpticalDatalink ] .
+bs:Geran2 a owl:Class ; rdfs:subClassOf bs:OneWayAttackUAV ;
+    rdfs:label "Geran-2" ; skos:altLabel "Shahed-136" .
+
+# -----------------------------------------------------------------------------
+#  PLATFORM TYPE HIERARCHY
+# -----------------------------------------------------------------------------
+
+bs:Platform a owl:Class ; rdfs:label "Platform" ;
+    rdfs:comment "Anything represented as a platform in the simulation: aircraft, vehicles, ships, sites, teams." .
+
+bs:Aircraft a owl:Class ; rdfs:subClassOf bs:Platform ; rdfs:label "Aircraft" .
+bs:FixedWingAircraft a owl:Class ; rdfs:subClassOf bs:Aircraft ; rdfs:label "Fixed-wing aircraft" .
+bs:FighterAircraft a owl:Class ; rdfs:subClassOf bs:FixedWingAircraft ; rdfs:label "Fighter aircraft" .
+bs:MultiroleFighter a owl:Class ; rdfs:subClassOf bs:FighterAircraft ; rdfs:label "Multirole fighter" .
+bs:InterceptorAircraft a owl:Class ; rdfs:subClassOf bs:FighterAircraft ; rdfs:label "Interceptor" .
+bs:SEADAircraft a owl:Class ; rdfs:subClassOf bs:FixedWingAircraft ; rdfs:label "SEAD aircraft (Wild Weasel role)" .
+bs:StrikeAircraft a owl:Class ; rdfs:subClassOf bs:FixedWingAircraft ; rdfs:label "Strike aircraft / fighter-bomber" .
+bs:Bomber a owl:Class ; rdfs:subClassOf bs:StrikeAircraft ; rdfs:label "Bomber" .
+bs:HighValueAirborneAsset a owl:Class ; rdfs:subClassOf bs:FixedWingAircraft ; rdfs:label "High-value airborne asset (HVAA)" ;
+    skos:altLabel "HVAA" .
+bs:AEWandC a owl:Class ; rdfs:subClassOf bs:HighValueAirborneAsset ; rdfs:label "Airborne early warning & control" ; skos:altLabel "AWACS" .
+bs:TankerAircraft a owl:Class ; rdfs:subClassOf bs:HighValueAirborneAsset ; rdfs:label "Air refueling tanker" .
+bs:RotaryWingAircraft a owl:Class ; rdfs:subClassOf bs:Aircraft ; rdfs:label "Rotary-wing aircraft" .
+bs:AttackHelicopter a owl:Class ; rdfs:subClassOf bs:RotaryWingAircraft ; rdfs:label "Attack helicopter" .
+bs:UncrewedAircraft a owl:Class ; rdfs:subClassOf bs:Aircraft ; rdfs:label "Uncrewed aircraft (MALE UAS)" ; skos:altLabel "UAV" , "drone" .
+
+bs:F-35A a owl:Class ; rdfs:subClassOf bs:MultiroleFighter ; rdfs:label "F-35A Lightning II" .
+bs:F-16CM a owl:Class ; rdfs:subClassOf bs:MultiroleFighter , bs:SEADAircraft ; rdfs:label "F-16CM Block 50 (SEAD)" .
+bs:F-15EX a owl:Class ; rdfs:subClassOf bs:MultiroleFighter ; rdfs:label "F-15EX Eagle II" .
+bs:TyphoonFGR4 a owl:Class ; rdfs:subClassOf bs:MultiroleFighter ; rdfs:label "Eurofighter Typhoon FGR4" .
+bs:B-1B a owl:Class ; rdfs:subClassOf bs:Bomber ; rdfs:label "B-1B Lancer" .
+bs:E-3G a owl:Class ; rdfs:subClassOf bs:AEWandC ; rdfs:label "E-3G Sentry" .
+bs:KC-46A a owl:Class ; rdfs:subClassOf bs:TankerAircraft ; rdfs:label "KC-46A Pegasus" .
+bs:MQ-9A a owl:Class ; rdfs:subClassOf bs:UncrewedAircraft ; rdfs:label "MQ-9A Reaper" .
+bs:AH-64E a owl:Class ; rdfs:subClassOf bs:AttackHelicopter ; rdfs:label "AH-64E Apache Guardian" .
+bs:Su-35S a owl:Class ; rdfs:subClassOf bs:MultiroleFighter ; rdfs:label "Su-35S Flanker-E" .
+bs:Su-34 a owl:Class ; rdfs:subClassOf bs:StrikeAircraft ; rdfs:label "Su-34 Fullback" .
+bs:MiG-31BM a owl:Class ; rdfs:subClassOf bs:InterceptorAircraft ; rdfs:label "MiG-31BM Foxhound" .
+bs:A-50U a owl:Class ; rdfs:subClassOf bs:AEWandC ; rdfs:label "A-50U Mainstay" .
+bs:Ka-52 a owl:Class ; rdfs:subClassOf bs:AttackHelicopter ; rdfs:label "Ka-52 Alligator" .
+bs:Inokhodets a owl:Class ; rdfs:subClassOf bs:UncrewedAircraft ; rdfs:label "Orion (Inokhodets) MALE UAV" ; skos:altLabel "Orion" .
+
+bs:GroundVehicle a owl:Class ; rdfs:subClassOf bs:Platform ; rdfs:label "Ground vehicle / ground system" .
+bs:ArmoredCombatVehicle a owl:Class ; rdfs:subClassOf bs:GroundVehicle ; rdfs:label "Armored combat vehicle" .
+bs:MainBattleTank a owl:Class ; rdfs:subClassOf bs:ArmoredCombatVehicle ; rdfs:label "Main battle tank" .
+bs:InfantryFightingVehicle a owl:Class ; rdfs:subClassOf bs:ArmoredCombatVehicle ; rdfs:label "Infantry fighting vehicle" .
+bs:FiresSystem a owl:Class ; rdfs:subClassOf bs:GroundVehicle ; rdfs:label "Indirect fires system" .
+bs:SelfPropelledHowitzer a owl:Class ; rdfs:subClassOf bs:FiresSystem ; rdfs:label "Self-propelled howitzer" .
+bs:RocketArtillery a owl:Class ; rdfs:subClassOf bs:FiresSystem ; rdfs:label "Rocket artillery / MLRS" .
+bs:BallisticMissileLauncher a owl:Class ; rdfs:subClassOf bs:FiresSystem ; rdfs:label "Ballistic missile TEL" .
+bs:CoastalDefenseLauncher a owl:Class ; rdfs:subClassOf bs:FiresSystem ; rdfs:label "Coastal anti-ship missile launcher" .
+bs:DismountedTeam a owl:Class ; rdfs:subClassOf bs:GroundVehicle ; rdfs:label "Dismounted / light team (ATGM, loitering munition or drone launch team)" .
+
+bs:M1A2 a owl:Class ; rdfs:subClassOf bs:MainBattleTank ; rdfs:label "M1A2 SEPv3 Abrams" .
+bs:T-90M a owl:Class ; rdfs:subClassOf bs:MainBattleTank ; rdfs:label "T-90M Proryv" .
+bs:M2A4 a owl:Class ; rdfs:subClassOf bs:InfantryFightingVehicle ; rdfs:label "M2A4 Bradley" .
+bs:BMP-3 a owl:Class ; rdfs:subClassOf bs:InfantryFightingVehicle ; rdfs:label "BMP-3" .
+bs:M109A7 a owl:Class ; rdfs:subClassOf bs:SelfPropelledHowitzer ; rdfs:label "M109A7 Paladin" .
+bs:AHS_Krab a owl:Class ; rdfs:subClassOf bs:SelfPropelledHowitzer ; rdfs:label "AHS Krab 155 mm" .
+bs:2S19M2 a owl:Class ; rdfs:subClassOf bs:SelfPropelledHowitzer ; rdfs:label "2S19M2 Msta-SM2" .
+bs:M142 a owl:Class ; rdfs:subClassOf bs:RocketArtillery ; rdfs:label "M142 HIMARS" .
+bs:TornadoS a owl:Class ; rdfs:subClassOf bs:RocketArtillery ; rdfs:label "9A53-S Tornado-S" .
+bs:9P78-1 a owl:Class ; rdfs:subClassOf bs:BallisticMissileLauncher ; rdfs:label "9P78-1 Iskander-M TEL" .
+bs:BastionP a owl:Class ; rdfs:subClassOf bs:CoastalDefenseLauncher ; rdfs:label "K-300P Bastion-P launcher" .
+bs:KornetTeam a owl:Class ; rdfs:subClassOf bs:DismountedTeam ; rdfs:label "9P163 Kornet ATGM team" .
+bs:SwitchbladeTeam a owl:Class ; rdfs:subClassOf bs:DismountedTeam ; rdfs:label "Switchblade 600 launch team" .
+bs:LancetTeam a owl:Class ; rdfs:subClassOf bs:DismountedTeam ; rdfs:label "Loitering munition launch team" .
+bs:GeranLauncher a owl:Class ; rdfs:subClassOf bs:DismountedTeam ; rdfs:label "One-way attack UAV launch rail" .
+
+bs:AirDefenseElement a owl:Class ; rdfs:subClassOf bs:Platform ;
+    rdfs:label "Air defense element" ;
+    skos:altLabel "IADS element" , "GBAD" ;
+    rdfs:comment "Any component of a ground-based air defense system: launchers, radars, command posts, self-contained SHORAD." .
+bs:SAMLauncher a owl:Class ; rdfs:subClassOf bs:AirDefenseElement , bs:GroundVehicle ; rdfs:label "SAM launcher / TEL" .
+bs:SHORADSystem a owl:Class ; rdfs:subClassOf bs:AirDefenseElement , bs:GroundVehicle ; rdfs:label "Self-contained SHORAD fire unit" ;
+    rdfs:comment "Carries its own radar and missiles: mission-capable on its own." .
+bs:AirDefenseRadar a owl:Class ; rdfs:subClassOf bs:AirDefenseElement ; rdfs:label "Air defense radar" .
+bs:EngagementRadar a owl:Class ; rdfs:subClassOf bs:AirDefenseRadar ;
+    rdfs:label "Engagement / fire-control radar" ;
+    skos:altLabel "FCR" , "multifunction radar" ;
+    rdfs:comment "Radar that guides interceptors. A SAM battery cannot engage without an operational engagement radar." .
+bs:SurveillanceRadar a owl:Class ; rdfs:subClassOf bs:AirDefenseRadar ; rdfs:label "Surveillance / acquisition radar" .
+bs:EarlyWarningRadar a owl:Class ; rdfs:subClassOf bs:SurveillanceRadar ; rdfs:label "Long-range early warning radar" .
+bs:AirDefenseCommandPost a owl:Class ; rdfs:subClassOf bs:AirDefenseElement ;
+    rdfs:label "Air defense command post / fire direction center" ;
+    rdfs:comment "Battery or battalion fire direction. A SAM battery cannot engage without an operational command post." .
+
+bs:M903 a owl:Class ; rdfs:subClassOf bs:SAMLauncher ; rdfs:label "M903 Patriot launching station" .
+bs:MPQ-65A a owl:Class ; rdfs:subClassOf bs:EngagementRadar ; rdfs:label "AN/MPQ-65A Patriot radar" .
+bs:MSQ-132 a owl:Class ; rdfs:subClassOf bs:AirDefenseCommandPost ; rdfs:label "AN/MSQ-132 Patriot ECS" .
+bs:NASAMS_Launcher a owl:Class ; rdfs:subClassOf bs:SAMLauncher ; rdfs:label "NASAMS canister launcher" .
+bs:SentinelF1 a owl:Class ; rdfs:subClassOf bs:EngagementRadar , bs:SurveillanceRadar ; rdfs:label "AN/MPQ-64F1 Sentinel (NASAMS)" .
+bs:NASAMS_FDC a owl:Class ; rdfs:subClassOf bs:AirDefenseCommandPost ; rdfs:label "NASAMS fire distribution center" .
+bs:M-SHORAD a owl:Class ; rdfs:subClassOf bs:SHORADSystem ; rdfs:label "M-SHORAD Increment 1 (Stryker)" .
+bs:5P85TE2 a owl:Class ; rdfs:subClassOf bs:SAMLauncher ; rdfs:label "5P85TE2 S-400 TEL" .
+bs:92N6E a owl:Class ; rdfs:subClassOf bs:EngagementRadar ; rdfs:label "92N6E Grave Stone (S-400 multifunction radar)" .
+bs:91N6E a owl:Class ; rdfs:subClassOf bs:SurveillanceRadar ; rdfs:label "91N6E Big Bird (S-400 acquisition radar)" .
+bs:55K6E a owl:Class ; rdfs:subClassOf bs:AirDefenseCommandPost ; rdfs:label "55K6E S-400 command post" .
+bs:9A317M a owl:Class ; rdfs:subClassOf bs:SAMLauncher ; rdfs:label "9A317M Buk-M3 TELAR" .
+bs:9S36M a owl:Class ; rdfs:subClassOf bs:EngagementRadar ; rdfs:label "9S36M Buk-M3 illumination & guidance radar" .
+bs:9S18M1 a owl:Class ; rdfs:subClassOf bs:SurveillanceRadar ; rdfs:label "9S18M1 Snow Drift (Buk acquisition radar)" .
+bs:9S510M a owl:Class ; rdfs:subClassOf bs:AirDefenseCommandPost ; rdfs:label "9S510M Buk command post" .
+bs:PantsirS1 a owl:Class ; rdfs:subClassOf bs:SHORADSystem ; rdfs:label "96K6 Pantsir-S1" .
+bs:TorM2 a owl:Class ; rdfs:subClassOf bs:SHORADSystem ; rdfs:label "9K332 Tor-M2" .
+bs:NeboM a owl:Class ; rdfs:subClassOf bs:EarlyWarningRadar ; rdfs:label "55Zh6M Nebo-M" .
+bs:Baikal a owl:Class ; rdfs:subClassOf bs:AirDefenseCommandPost ; rdfs:label "Baikal-1ME IADS command center" .
+
+# ---- Air defence units: DEFINED classes, membership is inferred -------------
+#  A unit's function is not asserted anywhere; the reasoner classifies each unit
+#  from the equipment beneath it in the chain of command (bs:hasSubordinate).
+
+bs:SAMBattalion a owl:Class ;
+    rdfs:label "SAM battalion" ;
+    skos:altLabel "surface-to-air missile battalion" , "air defence battalion" , "SAM unit" ;
+    rdfs:comment "A battalion-echelon unit with SAM launchers and/or self-contained SHORAD systems beneath it. Defined class: membership is inferred from equipment. Every SAM battalion is an IntegratedSAMBattalion, a SHORADBattalion, or both." ;
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf ( bs:MilitaryUnit
+        [ a owl:Restriction ; owl:onProperty bs:echelon ; owl:hasValue bs:Battalion ]
+        [ a owl:Restriction ; owl:onProperty bs:hasSubordinate ;
+          owl:someValuesFrom [ a owl:Class ; owl:unionOf ( bs:SAMLauncher bs:SHORADSystem ) ] ] ) ] .
+
+bs:IntegratedSAMBattalion a owl:Class ;
+    rdfs:label "Integrated SAM battalion (separate launchers, radars and command posts)" ;
+    rdfs:comment "SAM battalion built from separate components. Mission-capable only while it has at least one operational bs:SAMLauncher, one operational bs:EngagementRadar and one operational bs:AirDefenseCommandPost beneath it. Defined class: inferred." ;
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf ( bs:SAMBattalion
+        [ a owl:Restriction ; owl:onProperty bs:hasSubordinate ; owl:someValuesFrom bs:SAMLauncher ] ) ] .
+
+bs:SHORADBattalion a owl:Class ;
+    rdfs:label "SHORAD battalion (self-contained fire units)" ;
+    rdfs:comment "SAM battalion of self-contained SHORAD vehicles. Mission-capable while any one bs:SHORADSystem beneath it is operational. Defined class: inferred." ;
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf ( bs:SAMBattalion
+        [ a owl:Restriction ; owl:onProperty bs:hasSubordinate ; owl:someValuesFrom bs:SHORADSystem ] ) ] .
+
+bs:Ship a owl:Class ; rdfs:subClassOf bs:Platform ; rdfs:label "Ship" .
+bs:SurfaceCombatant a owl:Class ; rdfs:subClassOf bs:Ship ; rdfs:label "Surface combatant" .
+bs:Destroyer a owl:Class ; rdfs:subClassOf bs:SurfaceCombatant ; rdfs:label "Destroyer" .
+bs:Frigate a owl:Class ; rdfs:subClassOf bs:SurfaceCombatant ; rdfs:label "Frigate" .
+bs:Corvette a owl:Class ; rdfs:subClassOf bs:SurfaceCombatant ; rdfs:label "Corvette" .
+bs:DDG-51 a owl:Class ; rdfs:subClassOf bs:Destroyer ; rdfs:label "Arleigh Burke-class destroyer (Flight IIA)" .
+bs:NansenFFG a owl:Class ; rdfs:subClassOf bs:Frigate ; rdfs:label "Fridtjof Nansen-class frigate" .
+bs:FFG-62 a owl:Class ; rdfs:subClassOf bs:Frigate ; rdfs:label "Constellation-class frigate" .
+bs:BuyanM a owl:Class ; rdfs:subClassOf bs:Corvette ; rdfs:label "Project 21631 Buyan-M corvette" .
+bs:Karakurt a owl:Class ; rdfs:subClassOf bs:Corvette ; rdfs:label "Project 22800 Karakurt corvette" .
+
+bs:Facility a owl:Class ; rdfs:subClassOf bs:Platform ; rdfs:label "Fixed facility" .
+bs:AirBase a owl:Class ; rdfs:subClassOf bs:Facility ; rdfs:label "Air base" .
+bs:LogisticsSite a owl:Class ; rdfs:subClassOf bs:Facility ; rdfs:label "Logistics site" .
+bs:FuelDepot a owl:Class ; rdfs:subClassOf bs:LogisticsSite ; rdfs:label "Fuel depot" .
+bs:Port a owl:Class ; rdfs:subClassOf bs:LogisticsSite ; rdfs:label "Port facility" .

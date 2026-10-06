@@ -1,0 +1,51 @@
+{
+  "q0": {
+    "ontology OFF": {"score": 100, "verdict": "correct", "correct_points": ["Blue 598", "Red 452", "M795 116"], "missed_or_wrong": [], "summary": "All three parts right."},
+    "ontology ON": {"score": 100, "verdict": "correct", "correct_points": ["Blue 598", "Red 452", "M795 116"], "missed_or_wrong": [], "summary": "All three parts right."}
+  },
+  "q1": {
+    "ontology OFF": {"score": 0, "verdict": "incorrect", "correct_points": [],
+      "missed_or_wrong": ["Blue 67, should be 52", "Red 19, should be 22", "No per-type breakdown"], "summary": "Both totals wrong."},
+    "ontology ON": {"score": 90, "verdict": "correct", "correct_points": ["Blue 52", "Red 22", "Used the ontology's 11 AAM strings"],
+      "missed_or_wrong": ["No per-type breakdown"], "summary": "Both totals exactly right; breakdown not enumerated."}
+  },
+  "q2": {
+    "ontology OFF": {"score": 15, "verdict": "incorrect", "correct_points": ["Guided artillery: 10 (M982A1)"],
+      "missed_or_wrong": ["Total 229, should be 272", "Missiles 127, should be 120", "Guided bombs 68, should be 84",
+        "Guided rockets 24, should be 50 (unguided HYDRA70_M151 and S-8KOM counted)", "Loitering munitions 0, should be 8"],
+      "summary": "One category right; guessed guidance from designations."},
+    "ontology ON": {"score": 0, "verdict": "incorrect", "correct_points": [],
+      "missed_or_wrong": ["Filtered SQL on side = 'BlueCoalition' (the IRI name) instead of 'blue', so every count was 0", "Total 0, should be 272"],
+      "summary": "Wrong: used the ontology IRI name instead of bs:simSideName in SQL and reported zero."}
+  },
+  "q3": {
+    "ontology OFF": {"score": 15, "verdict": "incorrect", "correct_points": ["9M55K, Red, 24"],
+      "missed_or_wrong": ["M30A2 is not a cluster munition", "MGM-140B, 3O23, BURYA-12 missing", "Total 36, should be 53"], "summary": "One of four right, one false positive."},
+    "ontology ON": {"score": 100, "verdict": "correct", "correct_points": ["MGM-140B Blue 3", "3O23 Red 14", "9M55K Red 24", "BURYA-12 Red 12", "Total 53"],
+      "missed_or_wrong": [], "summary": "Every type, side and count right (third run in a row)."}
+  },
+  "q4": {
+    "ontology OFF": {"score": 5, "verdict": "incorrect", "correct_points": ["Total 18 Blue platforms destroyed"],
+      "missed_or_wrong": ["Concluded no brigade-level units exist; no per-unit breakdown"], "summary": "Right total, no breakdown."},
+    "ontology ON": {"score": 0, "verdict": "incorrect", "correct_points": [],
+      "missed_or_wrong": ["Queried bs:echelon \"Brigade\" (a string) instead of bs:Brigade, got 0 rows and concluded no brigades exist",
+        "Counted platform_status snapshots (2848) as destroyed platforms"],
+      "summary": "Wrong: a literal-vs-IRI mistake in SPARQL, never corrected despite the example query in the overview."}
+  },
+  "q5": {
+    "ontology OFF": {"score": 5, "verdict": "incorrect", "correct_points": ["Implicitly: Buk and 1st S-400 battalions not capable"],
+      "missed_or_wrong": ["Said no battalion could engage; 2nd S-400 and Tor battalions could", "No battalion named"], "summary": "Blanket 'none' answer."},
+    "ontology ON": {"score": 0, "verdict": "incorrect", "correct_points": [],
+      "missed_or_wrong": ["Analysed Blue systems (NASAMS, M-SHORAD) instead of Red", "No Red battalion identified"], "summary": "Wrong side's equipment."}
+  },
+  "q6": {
+    "ontology OFF": {"score": 75, "verdict": "partially_correct",
+      "correct_points": ["Total 5", "UK 2, Poland 2, Norway 1", "Killing weapons right for all five", "UK categories right (AAM, SAM)"],
+      "missed_or_wrong": ["9M55K is a cluster artillery rocket, not a SAM", "9M542 is a guided artillery rocket, not a SAM"],
+      "summary": "Counts and killing weapons all right (nationality from background knowledge); three of five categories wrong."},
+    "ontology ON": {"score": 0, "verdict": "incorrect", "correct_points": [],
+      "missed_or_wrong": ["Found the right 18 destroyed Blue platforms, then assigned nations without querying them (find_terms does not show nation)",
+        "Total 17, should be 5; Norway 4 and Poland 11 invented"],
+      "summary": "Wrong: the SQL fix worked, but the nation breakdown was fabricated rather than queried from the ontology."}
+  }
+}

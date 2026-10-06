@@ -1,0 +1,5 @@
+anthropic>=1.11
+mcp>=2.3
+rdflib>=7.1
+owlrl>=7.1
+httpx>=0.27

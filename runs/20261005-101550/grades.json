@@ -1,0 +1,71 @@
+{
+  "q0": {
+    "ontology OFF": {"score": 100, "verdict": "correct", "correct_points": ["Blue 598", "Red 452", "M795 116"], "missed_or_wrong": [],
+      "summary": "All three parts match the ground truth."},
+    "ontology ON": {"score": 100, "verdict": "correct", "correct_points": ["Blue 598", "Red 452", "M795 116"], "missed_or_wrong": [],
+      "summary": "All three parts match the ground truth."}
+  },
+  "q1": {
+    "ontology OFF": {"score": 20, "verdict": "incorrect",
+      "correct_points": ["Blue AIM-120C7 6, AIM-120D 16, AIM-132 3, AIM-9X_BLK2 4, MBDA_METEOR 7, WPN_AMRAAM_D 8, WPN_KESTREL 8"],
+      "missed_or_wrong": ["Blue total 67, should be 52", "Red total 19, should be 22", "AMRAAM-ER (a SAM) included",
+        "Red R-77-1, R-73M, R-37M counted under Blue", "Red breakdown wrong: 19 WPN_KESTREL; IZDELIYE_610M missing"],
+      "summary": "Seven Blue per-type counts are right, but both totals and the Red breakdown are wrong."},
+    "ontology ON": {"score": 70, "verdict": "partially_correct",
+      "correct_points": ["Blue 52", "Red 22", "All 11 AAM types identified with correct counts", "AMRAAM-ER correctly excluded"],
+      "missed_or_wrong": ["R-77-1, R-37M and R-73M (Red) listed as Blue", "AIM-132 (Blue) listed as Red",
+        "Its own Blue breakdown sums to 68, inconsistent with its 52 headline"],
+      "summary": "Totals and per-type counts right, but four types are attributed to the wrong side in the breakdown."}
+  },
+  "q2": {
+    "ontology OFF": {"score": 5, "verdict": "incorrect",
+      "correct_points": ["GBU-12, GBU-31V3, GBU-39, GBU-53B counts (68 combined)"],
+      "missed_or_wrong": ["Total 181, should be 272", "Missiles 99, should be 120", "Guided bombs 68, should be 84 (TRIDENT_GLIDE_KIT missing)",
+        "Guided rockets 14, should be 50 (M30A2, M31A2 wrongly called unguided)", "Guided artillery 0, should be 10 (M982A1)",
+        "Loitering munitions 0, should be 8 (SB600)"],
+      "summary": "Every category total is wrong."},
+    "ontology ON": {"score": 15, "verdict": "incorrect",
+      "correct_points": ["Guided artillery: 10 (M982A1)", "JASSM-ER 24, AGM-88E 10, AGM-88G 12, GBU-31V3 20, GBU-39 20, GBU-53B 24"],
+      "missed_or_wrong": ["Total 156, should be 272", "Missiles 46, should be 120 (8 missile types missing; AGM-114R and AGM-179 misfiled as rockets)",
+        "Guided bombs 72, should be 84: GEM-T (a SAM) included, GBU-12 and TRIDENT_GLIDE_KIT missing",
+        "Guided rockets 28, should be 50: APKWS_II, M30A2, M31A2 missing", "Loitering munitions 0, should be 8 (SB600)"],
+      "summary": "One category right and several per-type counts right, but large omissions and misfilings."}
+  },
+  "q3": {
+    "ontology OFF": {"score": 10, "verdict": "incorrect", "correct_points": ["9M55K, Red, 24"],
+      "missed_or_wrong": ["MGM-140B, 3O23, BURYA-12 missing", "3OF26, 3OF39, 3OF45, 9M542 wrongly counted", "Total 118, should be 53"],
+      "summary": "One of four right; guessed the rest from designations."},
+    "ontology ON": {"score": 100, "verdict": "correct",
+      "correct_points": ["MGM-140B Blue 3", "3O23 Red 14", "9M55K Red 24", "BURYA-12 Red 12", "Total 53", "Noted RBK-500_SPBE was never fired"],
+      "missed_or_wrong": [], "summary": "Every type, side and count matches the ground truth."}
+  },
+  "q4": {
+    "ontology OFF": {"score": 0, "verdict": "incorrect", "correct_points": [],
+      "missed_or_wrong": ["Concluded no brigade-level units exist", "No per-unit counts; total 0, should be 18"],
+      "summary": "Wrong: with no hierarchy data it concluded there were no such units."},
+    "ontology ON": {"score": 10, "verdict": "incorrect", "correct_points": ["Identified all 16 Blue brigade-level units"],
+      "missed_or_wrong": ["Used one-step bs:assignedTo instead of bs:subordinateTo, so found only 1 platform under the brigades",
+        "0 destroyed, should be 18 (1st ABCT 8, 11th Masurian 2, 140 EAW 2, 388th FW 2, 52nd FW 2, 22nd ARW 1)"],
+      "summary": "Found the right units via the inferred coalition, then queried the wrong property and found no losses."}
+  },
+  "q5": {
+    "ontology OFF": {"score": 5, "verdict": "incorrect",
+      "correct_points": ["Implicitly: separate-component battalions not capable holds for Buk and 1st S-400"],
+      "missed_or_wrong": ["No battalion named", "2nd S-400 Battalion is capable", "Tor battalion is capable", "Pantsir is not one of the four SAM battalions"],
+      "summary": "Counted equipment, not battalions; both capable battalions wrong."},
+    "ontology ON": {"score": 20, "verdict": "incorrect",
+      "correct_points": ["Buk battalion (53 ZRBR) not capable, for the right reason (no engagement radar)", "Used the ontology's units"],
+      "missed_or_wrong": ["Treated the S-400 regiment as one unit; 2nd S-400 Battalion is capable", "Tor battalion (7 MRR) is capable, not identified",
+        "Pantsir point-defence battery named as capable; it is not one of the four SAM battalions"],
+      "summary": "Reasoned at unit level and got Buk right, but missed both capable battalions."}
+  },
+  "q6": {
+    "ontology OFF": {"score": 0, "verdict": "incorrect", "correct_points": [],
+      "missed_or_wrong": ["Concluded none destroyed; 5 were (UK 2, Poland 2, Norway 1)"],
+      "summary": "Wrong: could not link destroyed platforms and concluded zero."},
+    "ontology ON": {"score": 0, "verdict": "incorrect", "correct_points": [],
+      "missed_or_wrong": ["Joined PLATFORM_BROKEN on events.target instead of events.platform, so found nothing", "Never used the ontology's (inferred) platform nations",
+        "Concluded none destroyed; 5 were (UK 2, Poland 2, Norway 1)"],
+      "summary": "Wrong: an SQL column mistake returned no rows and it stopped there without consulting the ontology."}
+  }
+}

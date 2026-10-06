@@ -1,0 +1,18 @@
+{
+ "q0": {"ontology OFF": {"score": 100, "verdict": "correct", "correct_points": ["Blue 598", "Red 452", "M795 116"], "missed_or_wrong": [], "summary": "All right."},
+        "ontology ON": {"score": 100, "verdict": "correct", "correct_points": ["Blue 598", "Red 452", "M795 116"], "missed_or_wrong": [], "summary": "All right."}},
+ "q1": {"ontology OFF": {"score": 30, "verdict": "incorrect", "correct_points": ["Blue total 52, but only by coincidence", "AIM-120D, WPN_AMRAAM_D, AIM-120C7, AIM-9X, AIM-132 and Red R-77-1, R-73M, R-37M counts right"],
+          "missed_or_wrong": ["Blue 52 includes AMRAAM-ER (15, a SAM) and misses METEOR (7) and KESTREL (8)", "Red 19, should be 22 (IZDELIYE_610M missing)"], "summary": "Right Blue number for the wrong reasons; Red wrong."},
+        "ontology ON": {"score": 100, "verdict": "correct", "correct_points": ["Blue 52", "Red 22", "Full per-type breakdown for both sides"], "missed_or_wrong": [], "summary": "All right."}},
+ "q2": {"ontology OFF": {"score": 15, "verdict": "incorrect", "correct_points": ["Guided artillery 10 (M982A1)"], "missed_or_wrong": ["Total 450, should be 272", "Unguided M795, M919, M830A1, HYDRA70 counted", "Other categories wrong"], "summary": "One category right."},
+        "ontology ON": {"score": 100, "verdict": "correct", "correct_points": ["Total 272 and all five categories right"], "missed_or_wrong": [], "summary": "All right."}},
+ "q3": {"ontology OFF": {"score": 10, "verdict": "incorrect", "correct_points": ["3O23 Red 14"], "missed_or_wrong": ["GBU-53B, 3OF26, 3OF39, 3OF45 wrongly included", "MGM-140B, 9M55K, BURYA-12 missing"], "summary": "One right, four false positives."},
+        "ontology ON": {"score": 100, "verdict": "correct", "correct_points": ["All four types, sides and counts, total 53"], "missed_or_wrong": [], "summary": "All right."}},
+ "q4": {"ontology OFF": {"score": 0, "verdict": "incorrect", "correct_points": [], "missed_or_wrong": ["Declared the question unanswerable"], "summary": "No answer from the data alone."},
+        "ontology ON": {"score": 95, "verdict": "correct", "correct_points": ["All six units with losses and their counts right", "TROLL12 correctly excluded"], "missed_or_wrong": ["Zero-loss units not listed"], "summary": "Every loss right."}},
+ "q5": {"ontology OFF": {"score": 0, "verdict": "incorrect", "correct_points": [], "missed_or_wrong": ["Invented battalions (KORNET, BUYAN-M, KARAKURT)", "Tor judged not capable"], "summary": "Wrong units."},
+        "ontology ON": {"score": 50, "verdict": "partially_correct", "correct_points": ["Exactly the 4 Red SAM battalions via bs:SAMBattalion", "2nd S-400 and Tor correctly capable", "DAMAGED treated as operational"],
+          "missed_or_wrong": ["Buk and 1st S-400 judged capable; neither has an operational engagement radar", "Counted the 9S18M1 surveillance radar and a 5P85TE2 launcher as engagement radars"], "summary": "Right battalions; role mix-up gave two wrong verdicts."}},
+ "q6": {"ontology OFF": {"score": 10, "verdict": "incorrect", "correct_points": ["UK pair's killing weapons"], "missed_or_wrong": ["Poland guessed as Russia, UK as Germany", "Norway missed", "9M55K called an AAM"], "summary": "Wrong nations and categories."},
+        "ontology ON": {"score": 100, "verdict": "correct", "correct_points": ["Total 5, nations from the ontology, all weapons and categories right"], "missed_or_wrong": [], "summary": "All right."}}
+}

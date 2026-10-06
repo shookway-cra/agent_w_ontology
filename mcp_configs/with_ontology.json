@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "simdb": { "command": "python", "args": ["mcp_servers/simdb_server.py"] },
+    "ontology": {
+      "command": "python",
+      "args": ["mcp_servers/ontology_server.py"],
+      "env": { "SPARQL_ENDPOINT": "http://127.0.0.1:3030/battlespace/sparql" }
+    }
+  }
+}

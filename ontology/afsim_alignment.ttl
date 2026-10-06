@@ -1,0 +1,430 @@
+@prefix bs:   <http://example.org/battlespace#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# =============================================================================
+#  AFSIM alignment
+#
+#  Every type string AFSIM can emit (platforms.type, events.weapon_type,
+#  weapon_inventory.weapon_type) is an individual here, asserted to be an
+#  instance of the ontology class it denotes. Everything else - superclasses,
+#  categories, guidance / warhead / intended-target facets - follows from the
+#  class axioms in battlespace.ttl by OWL-RL reasoning.
+#
+#  To align a new AFSIM type: add one entry naming its class. Aliases used by
+#  different federates / model libraries get one entry each.
+#  data/build_orbat_ttl.py checks every string the simulation emits is here.
+# =============================================================================
+
+bs:simtype_2S19M2 a bs:SimulationType , bs:2S19M2 ;
+    bs:simTypeName "2S19M2" ; rdfs:label "2S19M2" .
+
+bs:simtype_3BM60 a bs:SimulationType , bs:3BM60 ;
+    bs:simTypeName "3BM60" ; rdfs:label "3BM60" .
+
+bs:simtype_3M14 a bs:SimulationType , bs:3M14 ;
+    bs:simTypeName "3M14" ; rdfs:label "3M14" .
+
+bs:simtype_3M54 a bs:SimulationType , bs:3M54 ;
+    bs:simTypeName "3M54" ; rdfs:label "3M54" .
+
+bs:simtype_3M55 a bs:SimulationType , bs:P-800 ;
+    bs:simTypeName "3M55" ; rdfs:label "3M55" .
+
+bs:simtype_3O23 a bs:SimulationType , bs:3O23 ;
+    bs:simTypeName "3O23" ; rdfs:label "3O23" .
+
+bs:simtype_3OF26 a bs:SimulationType , bs:3OF26 ;
+    bs:simTypeName "3OF26" ; rdfs:label "3OF26" .
+
+bs:simtype_3OF39 a bs:SimulationType , bs:Krasnopol ;
+    bs:simTypeName "3OF39" ; rdfs:label "3OF39" .
+
+bs:simtype_3OF45 a bs:SimulationType , bs:3OF45 ;
+    bs:simTypeName "3OF45" ; rdfs:label "3OF45" .
+
+bs:simtype_3UBR8 a bs:SimulationType , bs:3UBR8 ;
+    bs:simTypeName "3UBR8" ; rdfs:label "3UBR8" .
+
+bs:simtype_40N6E a bs:SimulationType , bs:40N6E ;
+    bs:simTypeName "40N6E" ; rdfs:label "40N6E" .
+
+bs:simtype_48N6E3 a bs:SimulationType , bs:48N6E3 ;
+    bs:simTypeName "48N6E3" ; rdfs:label "48N6E3" .
+
+bs:simtype_55K6E_CP a bs:SimulationType , bs:55K6E ;
+    bs:simTypeName "55K6E_CP" ; rdfs:label "55K6E_CP" .
+
+bs:simtype_55ZH6M_NEBO-M a bs:SimulationType , bs:NeboM ;
+    bs:simTypeName "55ZH6M_NEBO-M" ; rdfs:label "55ZH6M_NEBO-M" .
+
+bs:simtype_57E6E a bs:SimulationType , bs:57E6E ;
+    bs:simTypeName "57E6E" ; rdfs:label "57E6E" .
+
+bs:simtype_5P85TE2_TEL a bs:SimulationType , bs:5P85TE2 ;
+    bs:simTypeName "5P85TE2_TEL" ; rdfs:label "5P85TE2_TEL" .
+
+bs:simtype_91N6E_BIG_BIRD a bs:SimulationType , bs:91N6E ;
+    bs:simTypeName "91N6E_BIG_BIRD" ; rdfs:label "91N6E_BIG_BIRD" .
+
+bs:simtype_92N6E_GRAVE_STONE a bs:SimulationType , bs:92N6E ;
+    bs:simTypeName "92N6E_GRAVE_STONE" ; rdfs:label "92N6E_GRAVE_STONE" .
+
+bs:simtype_96K6_PANTSIR-S1 a bs:SimulationType , bs:PantsirS1 ;
+    bs:simTypeName "96K6_PANTSIR-S1" ; rdfs:label "96K6_PANTSIR-S1" .
+
+bs:simtype_9A317M_TELAR a bs:SimulationType , bs:9A317M ;
+    bs:simTypeName "9A317M_TELAR" ; rdfs:label "9A317M_TELAR" .
+
+bs:simtype_9A53-S a bs:SimulationType , bs:TornadoS ;
+    bs:simTypeName "9A53-S" ; rdfs:label "9A53-S" .
+
+bs:simtype_9K332_TOR-M2 a bs:SimulationType , bs:TorM2 ;
+    bs:simTypeName "9K332_TOR-M2" ; rdfs:label "9K332_TOR-M2" .
+
+bs:simtype_9M117M1 a bs:SimulationType , bs:9M117M1 ;
+    bs:simTypeName "9M117M1" ; rdfs:label "9M117M1" .
+
+bs:simtype_9M119M a bs:SimulationType , bs:9M119M ;
+    bs:simTypeName "9M119M" ; rdfs:label "9M119M" .
+
+bs:simtype_9M127-1 a bs:SimulationType , bs:9M127-1 ;
+    bs:simTypeName "9M127-1" ; rdfs:label "9M127-1" .
+
+bs:simtype_9M133M-2 a bs:SimulationType , bs:9M133M-2 ;
+    bs:simTypeName "9M133M-2" ; rdfs:label "9M133M-2" .
+
+bs:simtype_9M317M a bs:SimulationType , bs:9M317M ;
+    bs:simTypeName "9M317M" ; rdfs:label "9M317M" .
+
+bs:simtype_9M338K a bs:SimulationType , bs:9M338K ;
+    bs:simTypeName "9M338K" ; rdfs:label "9M338K" .
+
+bs:simtype_9M542 a bs:SimulationType , bs:9M542 ;
+    bs:simTypeName "9M542" ; rdfs:label "9M542" .
+
+bs:simtype_9M55K a bs:SimulationType , bs:9M55K ;
+    bs:simTypeName "9M55K" ; rdfs:label "9M55K" .
+
+bs:simtype_9M723 a bs:SimulationType , bs:9M723 ;
+    bs:simTypeName "9M723" ; rdfs:label "9M723" .
+
+bs:simtype_9M728 a bs:SimulationType , bs:9M728 ;
+    bs:simTypeName "9M728" ; rdfs:label "9M728" .
+
+bs:simtype_9M96E2 a bs:SimulationType , bs:9M96E2 ;
+    bs:simTypeName "9M96E2" ; rdfs:label "9M96E2" .
+
+bs:simtype_9P163_KORNET a bs:SimulationType , bs:KornetTeam ;
+    bs:simTypeName "9P163_KORNET" ; rdfs:label "9P163_KORNET" .
+
+bs:simtype_9P78-1 a bs:SimulationType , bs:9P78-1 ;
+    bs:simTypeName "9P78-1" ; rdfs:label "9P78-1" .
+
+bs:simtype_9S18M1 a bs:SimulationType , bs:9S18M1 ;
+    bs:simTypeName "9S18M1" ; rdfs:label "9S18M1" .
+
+bs:simtype_9S36M a bs:SimulationType , bs:9S36M ;
+    bs:simTypeName "9S36M" ; rdfs:label "9S36M" .
+
+bs:simtype_9S510M a bs:SimulationType , bs:9S510M ;
+    bs:simTypeName "9S510M" ; rdfs:label "9S510M" .
+
+bs:simtype_A-50U a bs:SimulationType , bs:A-50U ;
+    bs:simTypeName "A-50U" ; rdfs:label "A-50U" .
+
+bs:simtype_AGM-114R a bs:SimulationType , bs:AGM-114R ;
+    bs:simTypeName "AGM-114R" ; rdfs:label "AGM-114R" .
+
+bs:simtype_AGM-179_JAGM a bs:SimulationType , bs:AGM-179 ;
+    bs:simTypeName "AGM-179_JAGM" ; rdfs:label "AGM-179_JAGM" .
+
+bs:simtype_AGM-88E a bs:SimulationType , bs:AGM-88E ;
+    bs:simTypeName "AGM-88E" ; rdfs:label "AGM-88E" .
+
+bs:simtype_AGM-88G a bs:SimulationType , bs:AGM-88G ;
+    bs:simTypeName "AGM-88G" ; rdfs:label "AGM-88G" .
+
+bs:simtype_AH-64E a bs:SimulationType , bs:AH-64E ;
+    bs:simTypeName "AH-64E" ; rdfs:label "AH-64E" .
+
+bs:simtype_AHS_KRAB a bs:SimulationType , bs:AHS_Krab ;
+    bs:simTypeName "AHS_KRAB" ; rdfs:label "AHS_KRAB" .
+
+bs:simtype_AIM-120C7 a bs:SimulationType , bs:AIM-120C-7 ;
+    bs:simTypeName "AIM-120C7" ; rdfs:label "AIM-120C7" .
+
+bs:simtype_AIM-120D a bs:SimulationType , bs:AIM-120D ;
+    bs:simTypeName "AIM-120D" ; rdfs:label "AIM-120D" .
+
+bs:simtype_AIM-132 a bs:SimulationType , bs:AIM-132 ;
+    bs:simTypeName "AIM-132" ; rdfs:label "AIM-132" .
+
+bs:simtype_AIM-9X_BLK2 a bs:SimulationType , bs:AIM-9X ;
+    bs:simTypeName "AIM-9X_BLK2" ; rdfs:label "AIM-9X_BLK2" .
+
+bs:simtype_AIRBASE_FACILITY a bs:SimulationType , bs:AirBase ;
+    bs:simTypeName "AIRBASE_FACILITY" ; rdfs:label "AIRBASE_FACILITY" .
+
+bs:simtype_AMRAAM-ER a bs:SimulationType , bs:AMRAAM-ER ;
+    bs:simTypeName "AMRAAM-ER" ; rdfs:label "AMRAAM-ER" .
+
+bs:simtype_APKWS_II a bs:SimulationType , bs:APKWS ;
+    bs:simTypeName "APKWS_II" ; rdfs:label "APKWS_II" .
+
+bs:simtype_B-1B a bs:SimulationType , bs:B-1B ;
+    bs:simTypeName "B-1B" ; rdfs:label "B-1B" .
+
+bs:simtype_BAIKAL-1ME a bs:SimulationType , bs:Baikal ;
+    bs:simTypeName "BAIKAL-1ME" ; rdfs:label "BAIKAL-1ME" .
+
+bs:simtype_BGM-109E a bs:SimulationType , bs:Tomahawk ;
+    bs:simTypeName "BGM-109E" ; rdfs:label "BGM-109E" .
+
+bs:simtype_BGM-71F a bs:SimulationType , bs:BGM-71F ;
+    bs:simTypeName "BGM-71F" ; rdfs:label "BGM-71F" .
+
+bs:simtype_BMP-3 a bs:SimulationType , bs:BMP-3 ;
+    bs:simTypeName "BMP-3" ; rdfs:label "BMP-3" .
+
+bs:simtype_BURYA-12 a bs:SimulationType , bs:Burya12 ;
+    bs:simTypeName "BURYA-12" ; rdfs:label "BURYA-12" .
+
+bs:simtype_DDG-51_FLT_IIA a bs:SimulationType , bs:DDG-51 ;
+    bs:simTypeName "DDG-51_FLT_IIA" ; rdfs:label "DDG-51_FLT_IIA" .
+
+bs:simtype_E-3G a bs:SimulationType , bs:E-3G ;
+    bs:simTypeName "E-3G" ; rdfs:label "E-3G" .
+
+bs:simtype_EF2000_FGR4 a bs:SimulationType , bs:TyphoonFGR4 ;
+    bs:simTypeName "EF2000_FGR4" ; rdfs:label "EF2000_FGR4" .
+
+bs:simtype_F-15EX a bs:SimulationType , bs:F-15EX ;
+    bs:simTypeName "F-15EX" ; rdfs:label "F-15EX" .
+
+bs:simtype_F-16CM_BLK50 a bs:SimulationType , bs:F-16CM ;
+    bs:simTypeName "F-16CM_BLK50" ; rdfs:label "F-16CM_BLK50" .
+
+bs:simtype_F-35A a bs:SimulationType , bs:F-35A ;
+    bs:simTypeName "F-35A" ; rdfs:label "F-35A" .
+
+bs:simtype_FAB-500M62 a bs:SimulationType , bs:FAB-500M62 ;
+    bs:simTypeName "FAB-500M62" ; rdfs:label "FAB-500M62" .
+
+bs:simtype_FFG-62 a bs:SimulationType , bs:FFG-62 ;
+    bs:simTypeName "FFG-62" ; rdfs:label "FFG-62" .
+
+bs:simtype_FIM-92K a bs:SimulationType , bs:FIM-92K ;
+    bs:simTypeName "FIM-92K" ; rdfs:label "FIM-92K" .
+
+bs:simtype_FUEL_DEPOT a bs:SimulationType , bs:FuelDepot ;
+    bs:simTypeName "FUEL_DEPOT" ; rdfs:label "FUEL_DEPOT" .
+
+bs:simtype_GBU-12 a bs:SimulationType , bs:GBU-12 ;
+    bs:simTypeName "GBU-12" ; rdfs:label "GBU-12" .
+
+bs:simtype_GBU-31V3 a bs:SimulationType , bs:GBU-31 ;
+    bs:simTypeName "GBU-31V3" ; rdfs:label "GBU-31V3" .
+
+bs:simtype_GBU-39 a bs:SimulationType , bs:GBU-39 ;
+    bs:simTypeName "GBU-39" ; rdfs:label "GBU-39" .
+
+bs:simtype_GBU-53B a bs:SimulationType , bs:GBU-53 ;
+    bs:simTypeName "GBU-53B" ; rdfs:label "GBU-53B" .
+
+bs:simtype_GEM-T a bs:SimulationType , bs:GEM-T ;
+    bs:simTypeName "GEM-T" ; rdfs:label "GEM-T" .
+
+bs:simtype_GERAN-2 a bs:SimulationType , bs:Geran2 ;
+    bs:simTypeName "GERAN-2" ; rdfs:label "GERAN-2" .
+
+bs:simtype_GERAN_LAUNCH_RAIL a bs:SimulationType , bs:GeranLauncher ;
+    bs:simTypeName "GERAN_LAUNCH_RAIL" ; rdfs:label "GERAN_LAUNCH_RAIL" .
+
+bs:simtype_HYDRA70_M151 a bs:SimulationType , bs:Hydra70_M151 ;
+    bs:simTypeName "HYDRA70_M151" ; rdfs:label "HYDRA70_M151" .
+
+bs:simtype_INOKHODETS a bs:SimulationType , bs:Inokhodets ;
+    bs:simTypeName "INOKHODETS" ; rdfs:label "INOKHODETS" .
+
+bs:simtype_IZDELIYE_610M a bs:SimulationType , bs:R-37M ;
+    bs:simTypeName "IZDELIYE_610M" ; rdfs:label "IZDELIYE_610M" .
+
+bs:simtype_JASSM-ER a bs:SimulationType , bs:JASSM-ER ;
+    bs:simTypeName "JASSM-ER" ; rdfs:label "JASSM-ER" .
+
+bs:simtype_K-300P_LAUNCHER a bs:SimulationType , bs:BastionP ;
+    bs:simTypeName "K-300P_LAUNCHER" ; rdfs:label "K-300P_LAUNCHER" .
+
+bs:simtype_KA-52 a bs:SimulationType , bs:Ka-52 ;
+    bs:simTypeName "KA-52" ; rdfs:label "KA-52" .
+
+bs:simtype_KAB-20S a bs:SimulationType , bs:KAB-20S ;
+    bs:simTypeName "KAB-20S" ; rdfs:label "KAB-20S" .
+
+bs:simtype_KAB-500S a bs:SimulationType , bs:KAB-500S ;
+    bs:simTypeName "KAB-500S" ; rdfs:label "KAB-500S" .
+
+bs:simtype_KC-46A a bs:SimulationType , bs:KC-46A ;
+    bs:simTypeName "KC-46A" ; rdfs:label "KC-46A" .
+
+bs:simtype_KH-31PD a bs:SimulationType , bs:Kh-31PD ;
+    bs:simTypeName "KH-31PD" ; rdfs:label "KH-31PD" .
+
+bs:simtype_KH-59MK2 a bs:SimulationType , bs:Kh-59MK2 ;
+    bs:simTypeName "KH-59MK2" ; rdfs:label "KH-59MK2" .
+
+bs:simtype_LANCET-3 a bs:SimulationType , bs:Lancet3 ;
+    bs:simTypeName "LANCET-3" ; rdfs:label "LANCET-3" .
+
+bs:simtype_M-SHORAD_INC1 a bs:SimulationType , bs:M-SHORAD ;
+    bs:simTypeName "M-SHORAD_INC1" ; rdfs:label "M-SHORAD_INC1" .
+
+bs:simtype_M109A7 a bs:SimulationType , bs:M109A7 ;
+    bs:simTypeName "M109A7" ; rdfs:label "M109A7" .
+
+bs:simtype_M142_HIMARS a bs:SimulationType , bs:M142 ;
+    bs:simTypeName "M142_HIMARS" ; rdfs:label "M142_HIMARS" .
+
+bs:simtype_M1A2_SEPV3 a bs:SimulationType , bs:M1A2 ;
+    bs:simTypeName "M1A2_SEPV3" ; rdfs:label "M1A2_SEPV3" .
+
+bs:simtype_M2A4 a bs:SimulationType , bs:M2A4 ;
+    bs:simTypeName "M2A4" ; rdfs:label "M2A4" .
+
+bs:simtype_M30A2 a bs:SimulationType , bs:GMLRS_AW ;
+    bs:simTypeName "M30A2" ; rdfs:label "M30A2" .
+
+bs:simtype_M31A2 a bs:SimulationType , bs:GMLRS_Unitary ;
+    bs:simTypeName "M31A2" ; rdfs:label "M31A2" .
+
+bs:simtype_M795 a bs:SimulationType , bs:M795 ;
+    bs:simTypeName "M795" ; rdfs:label "M795" .
+
+bs:simtype_M829A4 a bs:SimulationType , bs:M829A4 ;
+    bs:simTypeName "M829A4" ; rdfs:label "M829A4" .
+
+bs:simtype_M830A1 a bs:SimulationType , bs:M830A1 ;
+    bs:simTypeName "M830A1" ; rdfs:label "M830A1" .
+
+bs:simtype_M903_LS a bs:SimulationType , bs:M903 ;
+    bs:simTypeName "M903_LS" ; rdfs:label "M903_LS" .
+
+bs:simtype_M919 a bs:SimulationType , bs:M919 ;
+    bs:simTypeName "M919" ; rdfs:label "M919" .
+
+bs:simtype_M982A1 a bs:SimulationType , bs:M982 ;
+    bs:simTypeName "M982A1" ; rdfs:label "M982A1" .
+
+bs:simtype_MBDA_METEOR a bs:SimulationType , bs:Meteor ;
+    bs:simTypeName "MBDA_METEOR" ; rdfs:label "MBDA_METEOR" .
+
+bs:simtype_MGM-140B a bs:SimulationType , bs:ATACMS_BlkIA ;
+    bs:simTypeName "MGM-140B" ; rdfs:label "MGM-140B" .
+
+bs:simtype_MIG-31BM a bs:SimulationType , bs:MiG-31BM ;
+    bs:simTypeName "MIG-31BM" ; rdfs:label "MIG-31BM" .
+
+bs:simtype_MPQ-65A_RADAR a bs:SimulationType , bs:MPQ-65A ;
+    bs:simTypeName "MPQ-65A_RADAR" ; rdfs:label "MPQ-65A_RADAR" .
+
+bs:simtype_MQ-9A a bs:SimulationType , bs:MQ-9A ;
+    bs:simTypeName "MQ-9A" ; rdfs:label "MQ-9A" .
+
+bs:simtype_MSQ-132_ECS a bs:SimulationType , bs:MSQ-132 ;
+    bs:simTypeName "MSQ-132_ECS" ; rdfs:label "MSQ-132_ECS" .
+
+bs:simtype_NANSEN_CLASS_FFG a bs:SimulationType , bs:NansenFFG ;
+    bs:simTypeName "NANSEN_CLASS_FFG" ; rdfs:label "NANSEN_CLASS_FFG" .
+
+bs:simtype_NASAMS_FDC a bs:SimulationType , bs:NASAMS_FDC ;
+    bs:simTypeName "NASAMS_FDC" ; rdfs:label "NASAMS_FDC" .
+
+bs:simtype_NASAMS_LCHR a bs:SimulationType , bs:NASAMS_Launcher ;
+    bs:simTypeName "NASAMS_LCHR" ; rdfs:label "NASAMS_LCHR" .
+
+bs:simtype_NSM_BLK1A a bs:SimulationType , bs:NSM ;
+    bs:simTypeName "NSM_BLK1A" ; rdfs:label "NSM_BLK1A" .
+
+bs:simtype_P-800 a bs:SimulationType , bs:P-800 ;
+    bs:simTypeName "P-800" ; rdfs:label "P-800" .
+
+bs:simtype_PAC-3_MSE a bs:SimulationType , bs:PAC-3_MSE ;
+    bs:simTypeName "PAC-3_MSE" ; rdfs:label "PAC-3_MSE" .
+
+bs:simtype_PORT_FACILITY a bs:SimulationType , bs:Port ;
+    bs:simTypeName "PORT_FACILITY" ; rdfs:label "PORT_FACILITY" .
+
+bs:simtype_PR21631_BUYAN-M a bs:SimulationType , bs:BuyanM ;
+    bs:simTypeName "PR21631_BUYAN-M" ; rdfs:label "PR21631_BUYAN-M" .
+
+bs:simtype_PR22800_KARAKURT a bs:SimulationType , bs:Karakurt ;
+    bs:simTypeName "PR22800_KARAKURT" ; rdfs:label "PR22800_KARAKURT" .
+
+bs:simtype_PRSM_INC1 a bs:SimulationType , bs:PrSM ;
+    bs:simTypeName "PRSM_INC1" ; rdfs:label "PRSM_INC1" .
+
+bs:simtype_R-37M a bs:SimulationType , bs:R-37M ;
+    bs:simTypeName "R-37M" ; rdfs:label "R-37M" .
+
+bs:simtype_R-73M a bs:SimulationType , bs:R-73M ;
+    bs:simTypeName "R-73M" ; rdfs:label "R-73M" .
+
+bs:simtype_R-77-1 a bs:SimulationType , bs:R-77-1 ;
+    bs:simTypeName "R-77-1" ; rdfs:label "R-77-1" .
+
+bs:simtype_RBK-500_SPBE a bs:SimulationType , bs:RBK-500_SPBE ;
+    bs:simTypeName "RBK-500_SPBE" ; rdfs:label "RBK-500_SPBE" .
+
+bs:simtype_RGM-184A a bs:SimulationType , bs:NSM ;
+    bs:simTypeName "RGM-184A" ; rdfs:label "RGM-184A" .
+
+bs:simtype_RIM-162D a bs:SimulationType , bs:ESSM ;
+    bs:simTypeName "RIM-162D" ; rdfs:label "RIM-162D" .
+
+bs:simtype_S-8KOM a bs:SimulationType , bs:S-8KOM ;
+    bs:simTypeName "S-8KOM" ; rdfs:label "S-8KOM" .
+
+bs:simtype_SB600 a bs:SimulationType , bs:Switchblade600 ;
+    bs:simTypeName "SB600" ; rdfs:label "SB600" .
+
+bs:simtype_SB600_TEAM a bs:SimulationType , bs:SwitchbladeTeam ;
+    bs:simTypeName "SB600_TEAM" ; rdfs:label "SB600_TEAM" .
+
+bs:simtype_SENTINEL_F1 a bs:SimulationType , bs:SentinelF1 ;
+    bs:simTypeName "SENTINEL_F1" ; rdfs:label "SENTINEL_F1" .
+
+bs:simtype_SM-2_BLK3C a bs:SimulationType , bs:SM-2 ;
+    bs:simTypeName "SM-2_BLK3C" ; rdfs:label "SM-2_BLK3C" .
+
+bs:simtype_SM-6_BLK1A a bs:SimulationType , bs:SM-6 ;
+    bs:simTypeName "SM-6_BLK1A" ; rdfs:label "SM-6_BLK1A" .
+
+bs:simtype_SU-34 a bs:SimulationType , bs:Su-34 ;
+    bs:simTypeName "SU-34" ; rdfs:label "SU-34" .
+
+bs:simtype_SU-35S a bs:SimulationType , bs:Su-35S ;
+    bs:simTypeName "SU-35S" ; rdfs:label "SU-35S" .
+
+bs:simtype_T-90M a bs:SimulationType , bs:T-90M ;
+    bs:simTypeName "T-90M" ; rdfs:label "T-90M" .
+
+bs:simtype_TRIDENT_GLIDE_KIT a bs:SimulationType , bs:TridentGlideKit ;
+    bs:simTypeName "TRIDENT_GLIDE_KIT" ; rdfs:label "TRIDENT_GLIDE_KIT" .
+
+bs:simtype_VORON-K a bs:SimulationType , bs:VoronK ;
+    bs:simTypeName "VORON-K" ; rdfs:label "VORON-K" .
+
+bs:simtype_WPN_AMRAAM_D a bs:SimulationType , bs:AIM-120D ;
+    bs:simTypeName "WPN_AMRAAM_D" ; rdfs:label "WPN_AMRAAM_D" .
+
+bs:simtype_WPN_KESTREL a bs:SimulationType , bs:KestrelAAM ;
+    bs:simTypeName "WPN_KESTREL" ; rdfs:label "WPN_KESTREL" .
+
+bs:simtype_XM1113 a bs:SimulationType , bs:XM1113 ;
+    bs:simTypeName "XM1113" ; rdfs:label "XM1113" .
+
+bs:simtype_ZALA_LANCET3 a bs:SimulationType , bs:Lancet3 ;
+    bs:simTypeName "ZALA_LANCET3" ; rdfs:label "ZALA_LANCET3" .
+
+bs:simtype_ZALA_LANCET_TEAM a bs:SimulationType , bs:LancetTeam ;
+    bs:simTypeName "ZALA_LANCET_TEAM" ; rdfs:label "ZALA_LANCET_TEAM" .

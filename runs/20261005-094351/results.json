@@ -1,0 +1,112 @@
+[
+  {
+    "id": "q3",
+    "title": "Cluster munition employment",
+    "prompt": "Which cluster (submunition-dispensing) munitions were employed during the engagement? For each, give the weapon type, the side that used it, and the number of rounds fired.",
+    "why_ontology_helps": "Requires warhead knowledge: MGM-140B is ATACMS Block IA (APAM submunitions), BURYA-12 is notional, while M30A2 (GMLRS Alternative Warhead) looks like the old DPICM rocket but has no submunitions.",
+    "ground_truth": "Cluster munitions fired: total 53 rounds - MGM-140B (MGM-140B ATACMS Block IA) by blue: 3; 3O23 (3-O-23 152 mm cargo projectile (ICM)) by red: 14; 9M55K (9M55K 300 mm cargo rocket) by red: 24; BURYA-12 (Burya-12 cargo rocket (notional)) by red: 12. Not cluster: M30A2 GMLRS-AW (pre-formed fragments, replaced the DPICM M30), M31A2 (unitary).",
+    "results": [
+      {
+        "mode": "ontology OFF",
+        "question": "Which cluster (submunition-dispensing) munitions were employed during the engagement? For each, give the weapon type, the side that used it, and the number of rounds fired.",
+        "answer": "Headline: 1 cluster munition type employed by red side (48 rounds fired).  \nBreakdown:  \n- Weapon type: S-8KOM (S-8 cluster rocket)  \n- Side: red  \n- Rounds fired: 48  \n\nAssumptions:  \n- S-8KOM is classified as a cluster munition based on the \"KOM\" suffix (Russian for \"cluster\" / kasseta), consistent with S-8 rocket family variants.  \n- No other weapon types in the dataset (e.g., GERAN-2, GBU series) match the criteria for submunition-dispensing cluster munitions.  \n- All 48 instances of S-8KOM were fired by the red side (verified via SQL count).",
+        "tool_calls": [
+          {
+            "name": "simdb__describe_database",
+            "input": {},
+            "output": "TABLE events (2489 rows)\n  event_id INTEGER\n  time_s REAL\n  event_type TEXT\n  platform TEXT\n  side TEXT\n  target TEXT\n  weapon_type TEXT\n  weapon_id TEXT\n  result TEXT\n  lat REAL\n  lon REAL\n  alt_m REAL\n  details TEXT\n\nTABLE platform_status (40488 rows)\n  time_s REAL\n  platform TEXT\n  lat REAL\n  lon REAL\n  alt_m REAL\n  heading_deg REAL\n  speed_mps REAL\n  fuel_kg REAL\n  damage_factor REAL\n  state TEXT\n\nTABLE platforms (168 rows)\n  name TEXT\n  type TEXT\n  side TEXT\n  added_time_s REAL\n\nTABLE sim_info (7 rows)\n  key TEXT\n  value TEXT\n\nTABLE weapon_inventory (9000 rows)\n  time_s REAL\n  platform TEXT\n  weapon_type TEXT\n  quantity INTEGER\n\nsim_info:\n  scenario = BALTIC SHIELD (synthetic)\n  generator = AFSIM-style synthetic output, generate_sim_data.py\n  sim_start_utc = 2026-03-14T04:00:00Z\n  duration_s = 14400\n  status_interval_s = 60\n  inventory_interval_s = 600\n  random_seed = 20260347\n\ndistinct events.event_type: WEAPON_FIRED (1050), WEAPON_MISSED (736), WEAPON_HIT (314), PLATFORM_ADDED (168), SENSOR_TRACK_INITIATED (148), PLATFORM_BROKEN (73)\n\ndistinct events.result: MISS (545), HIT (218), INTERCEPTED (96), INTERCEPT (96), TARGET_ALREADY_DESTROYED (95), KILLED (73)\n\ndistinct platforms.side: blue (89), red (79)\n\ndistinct platform_status.state: ACTIVE (23324), BROKEN (10506), DAMAGED (6658)\n\ndistinct platforms.type: 2S19M2 (4), 55K6E_CP (2), 55ZH6M_NEBO-M (1), 5P85TE2_TEL (8), 91N6E_BIG_BIRD (2), 92N6E_GRAVE_STONE (2), 96K6_PANTSIR-S1 (4), 9A317M_TELAR (3), 9A53-S (2), 9K332_TOR-M2 (2), 9P163_KORNET (2), 9P78-1 (2), 9S18M1 (1), 9S36M (1), 9S510M (1), A-50U (1), AH-64E (4), AHS_KRAB (4), AIRBASE_FACILITY (2), B-1B (2), BAIKAL-1ME (1), BMP-3 (4), DDG-51_FLT_IIA (2), E-3G (1), EF2000_FGR4 (4), F-15EX (4), F-16CM_BLK50 (8), F-35A (8), FFG-62 (1), FUEL_DEPOT (1), GERAN_LAUNCH_RAIL (2), INOKHODETS (2), K-300P_LAUNCHER (2), KA-52 (4), KC-46A (1), M-SHORAD_INC1 (4), M109A7 (8), M142_HIMARS (4), M1A2_SEPV3 (8), M2A4 (8), M903_LS (4), MIG-31BM (2), MPQ-65A_RADAR (1), MQ-9A (2), MSQ-132_ECS (1), NANSEN_CLASS_FFG (1), NASAMS_FDC (1), NASAMS_LCHR (3), PORT_FACILITY (1), PR21631_BUYAN-M (1), PR22800_KARAKURT (1), SB600_TEAM (2), SENTINEL_F1 (1), SU-34 (6), SU-35S (8), T-90M (4), ZALA_LANCET_TEAM (2)\n\ndistinct events.weapon_type (WEAPON_FIRED): 3BM60 (7), 3M14 (8), 3M54 (5), 3M55 (4), 3O23 (14), 3OF26 (4), 3OF39 (8), 3OF45 (68), 3UBR8 (3), 40N6E (4), 48N6E3 (16), 57E6E (48), 9M117M1 (2), 9M119M (4), 9M127-1 (14), 9M133M-2 (4), 9M317M (12), 9M338K (32), 9M542 (14), 9M55K (24), 9M723 (4), 9M728 (4), 9M96E2 (23), AGM-114R (10), AGM-179_JAGM (18), AGM-88E (10), AGM-88G (12), AIM-120C7 (6), AIM-120D (16), AIM-132 (3), AIM-9X_BLK2 (4), AMRAAM-ER (15), APKWS_II (14), BGM-109E (20), BGM-71F (5), BURYA-12 (12), FIM-92K (26), GBU-12 (4), GBU-31V3 (20), GBU-39 (20), GBU-53B (24), GEM-T (8), GERAN-2 (18), HYDRA70_M151 (24), IZDELIYE_610M (3), JASSM-ER (24), KAB-20S (5), KH-31PD (6), KH-59MK2 (4), LANCET-3 (3), M30A2 (12), M31A2 (24), M795 (116), M829A4 (7), M830A1 (3), M919 (15), M982A1 (10), MBDA_METEOR (7), MGM-140B (3), NSM_BLK1A (4), P-800 (4), PAC-3_MSE (7), PRSM_INC1 (6), R-37M (2), R-73M (5), R-77-1 (12), RGM-184A (8), RIM-162D (16), S-8KOM (48), SB600 (8), SM-2_BLK3C (8), SM-6_BLK1A (11), TRIDENT_GLIDE_KIT (16), VORON-K (2), WPN_AMRAAM_D (8), WPN_KESTREL (8), XM1113 (18), ZALA_LANCET3 (2)",
+            "seconds": 0.17,
+            "is_error": false
+          },
+          {
+            "name": "simdb__run_sql",
+            "input": {
+              "query": "SELECT side, COUNT(*) AS count FROM events WHERE event_type = 'WEAPON_FIRED' AND weapon_type = 'S-8KOM' GROUP BY side",
+              "max_rows": 10
+            },
+            "output": "side\tcount\nred\t48\n(1 rows)",
+            "seconds": 0.0,
+            "is_error": false
+          }
+        ],
+        "turns": 3,
+        "input_tokens": 5647,
+        "output_tokens": 3752,
+        "cache_read_tokens": 4399,
+        "seconds": 137.0,
+        "model_seconds": 135.9,
+        "stop_reason": "end_turn",
+        "error": null
+      },
+      {
+        "mode": "ontology ON",
+        "question": "Which cluster (submunition-dispensing) munitions were employed during the engagement? For each, give the weapon type, the side that used it, and the number of rounds fired.",
+        "answer": "Headline: 53 cluster munitions employed (14 red, 24 red, 12 red, 3 blue).  \nBreakdown:  \n- 3O23 (Red): 14 rounds  \n- 9M55K (Red): 24 rounds  \n- BURYA-12 (Red): 12 rounds  \n- MGM-140B (Blue): 3 rounds  \nAssumptions: RBK-500_SPBE was classified as a cluster munition by ontology but had zero WEAPON_FIRED events (confirmed via SQL count). All weapon types matched exactly to ontology-specified `simTypeName` values.",
+        "tool_calls": [
+          {
+            "name": "ontology__ontology_overview",
+            "input": {},
+            "output": "PREFIXES (added automatically to sparql_query):\nPREFIX bs: <http://example.org/battlespace#>\nPREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX owl: <http://www.w3.org/2002/07/owl#>\nPREFIX skos: <http://www.w3.org/2004/02/skos/core#>\nPREFIX xsd: <http://www.w3.org/2001/XMLSchema#>\n\n\nPROPERTIES:\n  bs:canCarry (owl:AnnotationProperty): Platform type (class) can carry / employ the munition type (class) in this scenario's loadouts.\n  bs:coalition (owl:ObjectProperty): Coalition (side) a unit or platform belongs to. Inferred, never asserted: a unit's nation's coalition, and for anything in a chain of command, its superior's coalition.\n  bs:echelon (owl:ObjectProperty)\n  bs:echelonRank (owl:DatatypeProperty): Ordering of echelons; larger = higher in the chain of command.\n  bs:guidance (owl:ObjectProperty): Guidance method of a munition (value is a bs:GuidanceMethod individual). Stated on a class, it holds for every subclass and every AFSIM type individual of that class (compiled to owl:hasValue restrictions in afsim_alignment.ttl).\n  bs:intendedTarget (owl:ObjectProperty): Target set a munition is designed to engage (value is a bs:TargetSet individual). Stated on a class, it holds for every subclass and every AFSIM type individual of that class.\n  bs:memberOf (owl:ObjectProperty)\n  bs:nation (owl:ObjectProperty): Nation that owns the unit.\n  bs:service (owl:ObjectProperty)\n  bs:simPlatformName (owl:DatatypeProperty): Exact platform name in the simulation output (platforms.name, events.platform, events.target).\n  bs:simSideName (owl:DatatypeProperty): Exact side string in the simulation output (platforms.side).\n  bs:simTypeName (owl:AnnotationProperty): Exact type string emitted by the simulation (platforms.type or events.weapon_type). Multiple values = aliases used by different federates.\n  bs:subordinateTo (owl:ObjectProperty): Chain of command: platform -> owning unit, unit -> parent unit. Transitive; use bs:subordinateTo+ in SPARQL to walk the whole chain.\n  bs:warheadType (owl:ObjectProperty): Warhead / payload type of a munition (value is a bs:WarheadType individual). Stated on a class, it holds for every subclass and every AFSIM type individual of that class.\n\nFACET VALUES:\n  bs:GuidanceMethod: bs:Unguided, bs:GPS_INS, bs:SemiActiveLaser, bs:ActiveRadar, bs:SemiActiveRadar, bs:InfraredHoming, bs:PassiveRadarHoming, bs:CommandGuidance, bs:SACLOS, bs:MultiMode, bs:ElectroOpticalDatalink\n  bs:WarheadType: bs:Unitary, bs:Submunitions, bs:PreformedFragments, bs:KineticPenetrator, bs:ShapedCharge, bs:HitToKill\n  bs:TargetSet: bs:AirTargets, bs:MissileTargets, bs:LandTargets, bs:ArmoredTargets, bs:MaritimeTargets, bs:EmitterTargets\n  bs:Echelon: bs:JointForce, bs:Component, bs:Corps, bs:Division, bs:Brigade, bs:Battalion, bs:Company, bs:Platoon\n  bs:Nation: bs:GBR, bs:POL, bs:NOR, bs:RDL, bs:USA\n  bs:Coalition: bs:RedForce, bs:BlueCoalition\n  bs:Service: bs:Air, bs:Land, bs:Maritime\n\nCLASS HIERARCHY SKELETON (non-leaf classes; multiple inheritance is used):\n  bs:AEWandC - Airborne early warning & control  [subClassOf bs:HighValueAirborneAsset; 2 sim types beneath]\n  bs:AirDefenseCommandPost - Air defense command post / fire direction center  [subClassOf bs:AirDefenseElement; 5 sim types beneath]\n  bs:AirDefenseElement - Air defense element  [subClassOf bs:Platform; 19 sim types beneath]\n  bs:AirDefenseRadar - Air defense radar  [subClassOf bs:AirDefenseElement; 7 sim types beneath]\n  bs:AirToAirMissile - Air-to-air missile (AAM)  [subClassOf bs:Missile; 9 sim types beneath]\n  bs:AirToSurfaceMissile - Air-to-surface missile  [subClassOf bs:Missile; 8 sim types beneath]\n  bs:Aircraft - Aircraft  [subClassOf bs:Platform; 15 sim types beneath]\n  bs:AntiRadiationMissile - Anti-radiation missile (ARM)  [subClassOf bs:AirToSurfaceMissile; 3 sim types beneath]\n  bs:AntiShipMissile - Anti-ship missile  [subClassOf bs:Missile; 4 sim types beneath]\n  bs:AntiTankGuidedMissile - Anti-tank guided missile (ATGM)  [subClassOf bs:Missile; 7 sim types beneath]\n  bs:ArmoredCombatVehicle - Armored combat vehicle  [subClassOf bs:GroundVehicle; 4 sim types beneath]\n  bs:ArtilleryProjectile - Artillery projectile  [subClassOf bs:Munition; 6 sim types beneath]\n  bs:AttackHelicopter - Attack helicopter  [subClassOf bs:RotaryWingAircraft; 2 sim types beneath]\n  bs:BallisticMissile - Surface-to-surface ballistic missile  [subClassOf bs:Missile; 3 sim types beneath]\n  bs:BallisticMissileInterceptor - Ballistic missile defence interceptor  [subClassOf bs:SurfaceToAirMissile; 2 sim types beneath]\n  bs:BallisticMissileLauncher - Ballistic missile TEL  [subClassOf bs:FiresSystem; 1 sim types beneath]\n  bs:Bomb - Aerial bomb  [subClassOf bs:Munition; 9 sim types beneath]\n  bs:Bomber - Bomber  [subClassOf bs:StrikeAircraft; 1 sim types beneath]\n  bs:ClusterBomb - Cluster bomb (dispenser)  [subClassOf bs:Bomb bs:ClusterMunition bs:UnguidedMunition; 1 sim types beneath]\n  bs:ClusterMunition - Cluster munition  [subClassOf bs:Munition; 5 sim types beneath]\n  bs:CoastalDefenseLauncher - Coastal anti-ship missile launcher  [subClassOf bs:FiresSystem; 1 sim types beneath]\n  bs:Corvette - Corvette  [subClassOf bs:SurfaceCombatant; 2 sim types beneath]\n  bs:CruiseMissile - Cruise missile  [subClassOf bs:Missile; 8 sim types beneath]\n  bs:Destroyer - Destroyer  [subClassOf bs:SurfaceCombatant; 1 sim types beneath]\n  bs:DirectFireAmmunition - Direct-fire gun ammunition  [subClassOf bs:UnguidedMunition; 6 sim types beneath]\n  bs:DismountedTeam - Dismounted / light team (ATGM, loitering munition or drone launch team)  [subClassOf bs:GroundVehicle; 4 sim types beneath]\n  bs:EarlyWarningRadar - Long-range early warning radar  [subClassOf bs:SurveillanceRadar; 1 sim types beneath]\n  bs:EngagementRadar - Engagement / fire-control radar  [subClassOf bs:AirDefenseRadar; 4 sim types beneath]\n  bs:Facility - Fixed facility  [subClassOf bs:Platform; 3 sim types beneath]\n  bs:FighterAircraft - Fighter aircraft  [subClassOf bs:FixedWingAircraft; 6 sim types beneath]\n  bs:FiresSystem - Indirect fires system  [subClassOf bs:GroundVehicle; 7 sim types beneath]\n  bs:FixedWingAircraft - Fixed-wing aircraft  [subClassOf bs:Aircraft; 11 sim types beneath]\n  bs:Frigate - Frigate  [subClassOf bs:SurfaceCombatant; 2 sim types beneath]\n  bs:GroundVehicle - Ground vehicle / ground system  [subClassOf bs:Platform; 22 sim types beneath]\n  bs:GuidedBomb - Guided bomb  [subClassOf bs:Bomb bs:PrecisionGuidedMunition; 7 sim types beneath]\n  bs:GuidedProjectile - Guided artillery projectile  [subClassOf bs:ArtilleryProjectile bs:PrecisionGuidedMunition; 2 sim types beneath]\n  bs:GuidedRocket - Guided rocket  [subClassOf bs:Rocket bs:PrecisionGuidedMunition; 4 sim types beneath]\n  bs:GunLaunchedATGM - Gun/barrel-launched ATGM  [subClassOf bs:AntiTankGuidedMissile; 2 sim types beneath]\n  bs:HEATRound - HEAT / multi-purpose gun round  [subClassOf bs:DirectFireAmmunition; 1 sim types beneath]\n  bs:HEFragRound - HE-FRAG gun round  [subClassOf bs:DirectFireAmmunition; 1 sim types beneath]\n  bs:HighValueAirborneAsset - High-value airborne asset (HVAA)  [subClassOf bs:FixedWingAircraft; 3 sim types beneath]\n  bs:InfantryFightingVehicle - Infantry fighting vehicle  [subClassOf bs:ArmoredCombatVehicle; 2 sim types beneath]\n  bs:InfraredAAM - Infrared-guided AAM (short range)  [subClassOf bs:AirToAirMissile; 4 sim types beneath]\n  bs:InterceptorAircraft - Interceptor  [subClassOf bs:FighterAircraft; 1 sim types beneath]\n  bs:KineticEnergyRound - APFSDS kinetic energy round  [subClassOf bs:DirectFireAmmunition; 4 sim types beneath]\n  bs:LandAttackCruiseMissile - Land-attack cruise missile  [subClassOf bs:CruiseMissile; 5 sim types beneath]\n  bs:LaserGuidedBomb - Laser-guided bomb (LGB)  [subClassOf bs:GuidedBomb; 1 sim types beneath]\n  bs:LogisticsSite - Logistics site  [subClassOf bs:Facility; 2 sim types beneath]\n  bs:LoiteringMunition - Loitering munition  [subClassOf bs:PrecisionGuidedMunition; 4 sim types beneath]\n  bs:LongRangeSAM - Long-range SAM  [subClassOf bs:SurfaceToAirMissile; 6 sim types beneath]\n  bs:MainBattleTank - Main battle tank  [subClassOf bs:ArmoredCombatVehicle; 2 sim types beneath]\n  bs:MediumRangeSAM - Medium-range SAM  [subClassOf bs:SurfaceToAirMissile; 4 sim types beneath]\n  bs:Missile - Missile  [subClassOf bs:PrecisionGuidedMunition; 43 sim types beneath]\n  bs:MultiModeGuidedBomb - Multi-mode guided bomb  [subClassOf bs:GuidedBomb; 1 sim types beneath]\n  bs:MultiroleFighter - Multirole fighter  [subClassOf bs:FighterAircraft; 5 sim types beneath]\n  bs:Munition - Munition  [subClassOf (root); 76 sim types beneath]\n  bs:OneWayAttackUAV - Long-range one-way attack UAV  [subClassOf bs:LoiteringMunition; 1 sim types beneath]\n  bs:Platform - Platform  [subClassOf (root); 57 sim types beneath]\n  bs:PrecisionGuidedMunition - Precision-guided munition (PGM)  [subClassOf bs:Munition; 60 sim types beneath]\n  bs:RadarGuidedAAM - Radar-guided AAM (beyond visual range)  [subClassOf bs:AirToAirMissile; 5 sim types beneath]\n  bs:Rocket - Rocket  [subClassOf bs:Munition; 8 sim types beneath]\n  bs:RocketArtillery - Rocket artillery / MLRS  [subClassOf bs:FiresSystem; 2 sim types beneath]\n  bs:RotaryWingAircraft - Rotary-wing aircraft  [subClassOf bs:Aircraft; 2 sim types beneath]\n  bs:SAMLauncher - SAM launcher / TEL  [subClassOf bs:AirDefenseElement bs:GroundVehicle; 4 sim types beneath]\n  bs:SEADAircraft - SEAD aircraft (Wild Weasel role)  [subClassOf bs:FixedWingAircraft; 1 sim types beneath]\n  bs:SHORADSystem - Self-contained SHORAD fire unit  [subClassOf bs:AirDefenseElement bs:GroundVehicle; 3 sim types beneath]\n  bs:SatelliteGuidedBomb - GPS/INS-guided bomb  [subClassOf bs:GuidedBomb; 5 sim types beneath]\n  bs:SelfPropelledHowitzer - Self-propelled howitzer  [subClassOf bs:FiresSystem; 3 sim types beneath]\n  bs:Ship - Ship  [subClassOf bs:Platform; 5 sim types beneath]\n  bs:ShortRangeSAM - Short-range SAM / SHORAD missile  [subClassOf bs:SurfaceToAirMissile; 3 sim types beneath]\n  bs:StrikeAircraft - Strike aircraft / fighter-bomber  [subClassOf bs:FixedWingAircraft; 2 sim types beneath]\n  bs:SurfaceCombatant - Surface combatant  [subClassOf bs:Ship; 5 sim types beneath]\n  bs:SurfaceToAirMissile - Surface-to-air missile (SAM)  [subClassOf bs:Missile; 13 sim types beneath]\n  bs:SurveillanceRadar - Surveillance / acquisition radar  [subClassOf bs:AirDefenseRadar; 4 sim types beneath]\n  bs:TankerAircraft - Air refueling tanker  [subClassOf bs:HighValueAirborneAsset; 1 sim types beneath]\n  bs:UncrewedAircraft - Uncrewed aircraft (MALE UAS)  [subClassOf bs:Aircraft; 2 sim types beneath]\n  bs:UnguidedBomb - Unguided general-purpose bomb  [subClassOf bs:Bomb bs:UnguidedMunition; 1 sim types beneath]\n  bs:UnguidedMunition - Unguided munition  [subClassOf bs:Munition; 16 sim types beneath]\n  bs:UnguidedProjectile - Conventional artillery projectile  [subClassOf bs:ArtilleryProjectile bs:UnguidedMunition; 4 sim types beneath]\n  bs:UnguidedRocket - Unguided rocket  [subClassOf bs:Rocket bs:UnguidedMunition; 4 sim types beneath]\n\nINSTANCES: 98 military units (bs:MilitaryUnit, linked by bs:subordinateTo, with bs:echelon / bs:nation / bs:service) and 168 platform individuals (typed with their platform class, bs:simPlatformName, bs:subordinateTo their owning unit).\n\nEXAMPLE QUERIES (reasoning is on, so no property paths are needed):\n  # exact AFSIM strings for every air-to-air missile (use these in SQL)\n  SELECT ?name WHERE { ?t a bs:SimulationType , bs:AirToAirMissile ; bs:simTypeName ?name }\n  # inherited facet: every AFSIM weapon string with a submunition (cluster) warhead\n  SELECT ?name WHERE { ?t a bs:SimulationType ; bs:warheadType bs:Submunitions ; bs:simTypeName ?name }\n  # Blue brigade-level units (coalition is inferred from nation membership)\n  SELECT ?u ?label WHERE { ?u a bs:MilitaryUnit ; bs:echelon bs:Brigade ; bs:coalition bs:BlueCoalition ; rdfs:label ?label }\n  # every platfo\n... [truncated]",
+            "seconds": 3.3,
+            "is_error": false
+          },
+          {
+            "name": "ontology__sparql_query",
+            "input": {
+              "query": "SELECT ?name WHERE { ?t a bs:SimulationType ; bs:warheadType bs:Submunitions ; bs:simTypeName ?name }"
+            },
+            "output": "name\nMGM-140B\n3O23\nRBK-500_SPBE\nBURYA-12\n9M55K\n(5 rows)",
+            "seconds": 0.23,
+            "is_error": false
+          },
+          {
+            "name": "simdb__run_sql",
+            "input": {
+              "query": "SELECT e.weapon_type, p.side, COUNT(*) AS count FROM events e JOIN platforms p ON e.platform = p.name WHERE e.event_type = 'WEAPON_FIRED' AND e.weapon_type IN ('MGM-140B', '3O23', 'RBK-500_SPBE', 'BURYA-12', '9M55K') GROUP BY e.weapon_type, p.side"
+            },
+            "output": "weapon_type\tside\tcount\n3O23\tred\t14\n9M55K\tred\t24\nBURYA-12\tred\t12\nMGM-140B\tblue\t3\n(4 rows)",
+            "seconds": 0.01,
+            "is_error": false
+          }
+        ],
+        "turns": 4,
+        "input_tokens": 6896,
+        "output_tokens": 3242,
+        "cache_read_tokens": 14475,
+        "seconds": 116.4,
+        "model_seconds": 111.1,
+        "stop_reason": "end_turn",
+        "error": null
+      }
+    ],
+    "grades": {
+      "ontology OFF": {
+        "score": 0,
+        "verdict": "incorrect",
+        "correct_points": [],
+        "missed_or_wrong": [
+          "S-8KOM wrongly classed as a cluster munition from its 'KOM' suffix",
+          "All four true cluster munitions missed (MGM-140B, 3O23, 9M55K, BURYA-12)",
+          "Total 48, should be 53"
+        ],
+        "summary": "Guessed from the designation and picked a single wrong weapon."
+      },
+      "ontology ON": {
+        "score": 100,
+        "verdict": "correct",
+        "correct_points": [
+          "MGM-140B, Blue, 3",
+          "3O23, Red, 14",
+          "9M55K, Red, 24",
+          "BURYA-12, Red, 12",
+          "Total 53",
+          "Correctly noted RBK-500_SPBE is a cluster munition that was never fired"
+        ],
+        "missed_or_wrong": [],
+        "summary": "Every type, side and count matches the ground truth, found with one inherited-facet query and one SQL count."
+      }
+    },
+    "seconds": 253.6,
+    "judge_seconds": 0.0
+  }
+]

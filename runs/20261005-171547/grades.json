@@ -1,0 +1,21 @@
+{
+ "q0": {"ontology OFF": {"score": 100, "verdict": "correct", "correct_points": ["Blue 598", "Red 452", "M795 116"], "missed_or_wrong": [], "summary": "All right."},
+        "ontology ON": {"score": 100, "verdict": "correct", "correct_points": ["Blue 598", "Red 452", "M795 116"], "missed_or_wrong": [], "summary": "All right."}},
+ "q1": {"ontology OFF": {"score": 15, "verdict": "incorrect", "correct_points": ["Six Blue and three Red AAM type counts right"],
+          "missed_or_wrong": ["Blue 60, should be 52 (AMRAAM-ER included, METEOR missing)", "Red 57, should be 22 (loitering munitions and rockets counted)"], "summary": "Both totals wrong."},
+        "ontology ON": {"score": 70, "verdict": "partially_correct", "correct_points": ["Blue 52", "Red 22", "All 11 types with correct counts", "AMRAAM-ER excluded"],
+          "missed_or_wrong": ["Red types (R-77-1, R-73M, R-37M, IZDELIYE_610M) shown under Blue in the breakdown"], "summary": "Totals right; breakdown table puts Red missiles in the Blue column."}},
+ "q2": {"ontology OFF": {"score": 0, "verdict": "incorrect", "correct_points": [], "missed_or_wrong": ["Total 387, should be 272", "Unguided M795 counted as guided artillery", "Every category wrong"], "summary": "Entirely wrong."},
+        "ontology ON": {"score": 100, "verdict": "correct", "correct_points": ["Total 272 and all five categories exactly right"], "missed_or_wrong": [], "summary": "All right."}},
+ "q3": {"ontology OFF": {"score": 0, "verdict": "incorrect", "correct_points": [], "missed_or_wrong": ["GBU-53B, 3OF45, 3OF39 are not cluster munitions", "All four true ones missed"], "summary": "Entirely wrong."},
+        "ontology ON": {"score": 100, "verdict": "correct", "correct_points": ["All four types, sides and counts, total 53"], "missed_or_wrong": [], "summary": "All right."}},
+ "q4": {"ontology OFF": {"score": 25, "verdict": "incorrect", "correct_points": ["Some callsign groups coincide with units"], "missed_or_wrong": ["Grouped by callsign prefix, not unit"], "summary": "Callsign proxy, not units."},
+        "ontology ON": {"score": 95, "verdict": "correct", "correct_points": ["All six units with losses and their counts right, with platform names"],
+          "missed_or_wrong": ["The ten units with no losses not listed"], "summary": "Every loss right; zero-loss units omitted."}},
+ "q5": {"ontology OFF": {"score": 0, "verdict": "incorrect", "correct_points": [], "missed_or_wrong": ["Buk battalion (called S-300) judged capable; it is not", "Tor judged not capable; it is", "2nd S-400 battalion not identified"], "summary": "Wrong verdicts."},
+        "ontology ON": {"score": 0, "verdict": "incorrect", "correct_points": [], "missed_or_wrong": ["No answer: hit the 40-turn limit"], "summary": "No answer."}},
+ "q6": {"ontology OFF": {"score": 35, "verdict": "incorrect", "correct_points": ["Total 5", "UK 2, Norway 1", "Killing weapons right"],
+          "missed_or_wrong": ["Polish KRAB platforms called Russian", "Categories wrong: 48N6E3 called AAM, 9M55K called SAM, 9M542 called AAM"], "summary": "Counts right, nations and categories partly wrong."},
+        "ontology ON": {"score": 0, "verdict": "incorrect", "correct_points": [],
+          "missed_or_wrong": ["No answer: hit the 40-turn limit", "22 of 29 SPARQL queries declared a wrong bs: namespace (http://www.battlespace.org/ontology#) and silently returned 0 rows"], "summary": "No answer; defeated by its own wrong PREFIX declaration."}}
+}

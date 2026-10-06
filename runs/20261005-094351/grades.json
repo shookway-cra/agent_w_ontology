@@ -1,0 +1,8 @@
+{"q3": {
+  "ontology OFF": {"score": 0, "verdict": "incorrect", "correct_points": [],
+    "missed_or_wrong": ["S-8KOM wrongly classed as a cluster munition from its 'KOM' suffix", "All four true cluster munitions missed (MGM-140B, 3O23, 9M55K, BURYA-12)", "Total 48, should be 53"],
+    "summary": "Guessed from the designation and picked a single wrong weapon."},
+  "ontology ON": {"score": 100, "verdict": "correct",
+    "correct_points": ["MGM-140B, Blue, 3", "3O23, Red, 14", "9M55K, Red, 24", "BURYA-12, Red, 12", "Total 53", "Correctly noted RBK-500_SPBE is a cluster munition that was never fired"],
+    "missed_or_wrong": [],
+    "summary": "Every type, side and count matches the ground truth, found with one inherited-facet query and one SQL count."}}}

@@ -1,0 +1,63 @@
+{
+  "q0": {
+    "ontology OFF": {"score": 100, "verdict": "correct", "correct_points": ["Blue 598", "Red 452", "M795 116"], "missed_or_wrong": [], "summary": "All three parts right."},
+    "ontology ON": {"score": 100, "verdict": "correct", "correct_points": ["Blue 598", "Red 452", "M795 116"], "missed_or_wrong": [], "summary": "All three parts right (calling M795 a missile is wrong but not graded)."}
+  },
+  "q1": {
+    "ontology OFF": {"score": 30, "verdict": "incorrect",
+      "correct_points": ["Blue AIM-120C7 6, AIM-120D 16, AIM-9X_BLK2 4, WPN_AMRAAM_D 8, WPN_KESTREL 8", "Red R-37M 2, R-73M 5, R-77-1 12"],
+      "missed_or_wrong": ["Blue 68, should be 52", "Red 31, should be 22", "SAMs FIM-92K (26) and 9M317M (12) counted as AAMs",
+        "AIM-132, MBDA_METEOR, IZDELIYE_610M missing"],
+      "summary": "Eight per-type counts right with correct sides, but two SAMs included and three AAMs missed, so both totals wrong."},
+    "ontology ON": {"score": 95, "verdict": "correct",
+      "correct_points": ["Blue 52", "Red 22", "All 11 AAM types from the ontology", "AMRAAM-ER correctly excluded as a SAM", "Blue per-type breakdown all correct"],
+      "missed_or_wrong": ["Red per-type breakdown not given"], "summary": "Totals and the Blue breakdown exactly right."}
+  },
+  "q2": {
+    "ontology OFF": {"score": 10, "verdict": "incorrect", "correct_points": ["Loitering munitions: 8 (SB600)"],
+      "missed_or_wrong": ["Total 433, should be 272", "Missiles 133, should be 120 (GEM-T, M982A1, WPN_KESTREL, MGM-140B wrongly in; RGM-184A, BGM-71F wrongly out)",
+        "Guided bombs 102, should be 84 (XM1113 included)", "Guided rockets 38, should be 50 (unguided HYDRA70 in; M30A2, M31A2 out)",
+        "Guided artillery 152, should be 10 (unguided M795 counted)"],
+      "summary": "Only the loitering-munition count is right."},
+    "ontology ON": {"score": 100, "verdict": "correct",
+      "correct_points": ["Total 272", "Missiles 120", "Guided bombs 84", "Guided rockets 50", "Guided artillery projectiles 10", "Loitering munitions 8"],
+      "missed_or_wrong": [], "summary": "Every figure exactly right - the first correct q2 in any run, from one ontology class query and SQL counts."}
+  },
+  "q3": {
+    "ontology OFF": {"score": 0, "verdict": "incorrect", "correct_points": [],
+      "missed_or_wrong": ["GBU-53B, 9M127-1 and 9M133M-2 are not cluster munitions", "All four true cluster munitions missed", "Total 42, should be 53"],
+      "summary": "Entirely wrong."},
+    "ontology ON": {"score": 100, "verdict": "correct", "correct_points": ["9M55K Red 24", "3O23 Red 14", "BURYA-12 Red 12", "MGM-140B Blue 3", "Noted RBK-500_SPBE never fired"],
+      "missed_or_wrong": [], "summary": "Every type, side and count right."}
+  },
+  "q4": {
+    "ontology OFF": {"score": 25, "verdict": "incorrect",
+      "correct_points": ["Total 18", "Some callsign groups coincide with real units (KRAB 2, RAPIER 2, LIGHTNING 2, WEASEL 2, SHELL 1)"],
+      "missed_or_wrong": ["Grouped by callsign prefix, not by unit", "1st ABCT's 8 losses split across COBRA/BLADE/IRON/THUNDER", "TROLL treated as a brigade-level unit"],
+      "summary": "A clever proxy that partly matches, but not the units asked for."},
+    "ontology ON": {"score": 100, "verdict": "correct",
+      "correct_points": ["All 16 Blue brigade-level units listed", "1st ABCT 8, 11th Masurian 2, 140 EAW 2, 388th FW 2, 52nd FW 2, 22nd ARW 1, all others 0",
+        "Correctly noted TROLL12 is not under a brigade-level unit"],
+      "missed_or_wrong": [], "summary": "Every unit and count right."}
+  },
+  "q5": {
+    "ontology OFF": {"score": 5, "verdict": "incorrect", "correct_points": ["Buk battalion judged not capable"],
+      "missed_or_wrong": ["Said no battalion could engage; 2nd S-400 and Tor battalions could", "Grouped by callsign; included non-SAM units (Kornet, Shtorm)"],
+      "summary": "Blanket 'none' answer from callsign grouping."},
+    "ontology ON": {"score": 0, "verdict": "incorrect", "correct_points": [],
+      "missed_or_wrong": ["Empty final answer after 33 tool calls",
+        "Could not get from a platform to its AFSIM type string: platforms have no bs:simTypeName and no link to their bs:SimulationType individual"],
+      "summary": "No answer; got stuck on a gap in the platform-to-AFSIM-type alignment."}
+  },
+  "q6": {
+    "ontology OFF": {"score": 20, "verdict": "incorrect",
+      "correct_points": ["Killing weapons right for RAPIER1, RAPIER3, KRAB31, KRAB34", "UK pair categories right (SAM, AAM)"],
+      "missed_or_wrong": ["Nations guessed wrong: France and South Korea instead of UK and Poland", "Norway (TROLL12) missed", "9M55K is a cluster artillery rocket, not a SAM", "Total 4, should be 5"],
+      "summary": "Right platforms and weapons, wrong nations from guessing."},
+    "ontology ON": {"score": 75, "verdict": "partially_correct",
+      "correct_points": ["UK 2 (48N6E3 SAM, R-73M AAM)", "Poland 2 (9M55K)", "Norway 1 (9M542 guided rocket)", "Nations taken from the ontology"],
+      "missed_or_wrong": ["LIS42 (a Red platform) wrongly added as a Blue partner loss, so total 6 not 5",
+        "9M55K called an unguided rocket; it is a cluster artillery rocket"],
+      "summary": "All five real losses right with nations and weapons, plus one spurious Red platform."}
+  }
+}

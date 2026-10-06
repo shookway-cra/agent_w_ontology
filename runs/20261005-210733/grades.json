@@ -1,0 +1,19 @@
+{
+ "q0": {"ontology OFF": {"score": 100, "verdict": "correct", "correct_points": ["Blue 598", "Red 452", "M795 116"], "missed_or_wrong": [], "summary": "All right."},
+        "ontology ON": {"score": 100, "verdict": "correct", "correct_points": ["Blue 598", "Red 452", "M795 116"], "missed_or_wrong": [], "summary": "All right."}},
+ "q1": {"ontology OFF": {"score": 20, "verdict": "incorrect", "correct_points": ["AIM-120C7, AIM-120D, AIM-132, AIM-9X (Blue); R-37M, R-73M, R-77-1 (Red) counts right"],
+          "missed_or_wrong": ["Blue 29, should be 52 (METEOR, KESTREL, WPN_AMRAAM_D missing)", "Red 31, should be 22 (9M317M, a SAM, counted; IZDELIYE_610M missing)"], "summary": "Both totals wrong."},
+        "ontology ON": {"score": 100, "verdict": "correct", "correct_points": ["Blue 52", "Red 22", "Full per-type breakdown by side"], "missed_or_wrong": [], "summary": "All right."}},
+ "q2": {"ontology OFF": {"score": 10, "verdict": "incorrect", "correct_points": ["Loitering munitions 8"], "missed_or_wrong": ["Total 431, should be 272", "Every other category wrong"], "summary": "One category right."},
+        "ontology ON": {"score": 0, "verdict": "incorrect", "correct_points": [], "missed_or_wrong": ["Empty final answer after 22 tool calls (still empty after the nudge)"], "summary": "No answer."}},
+ "q3": {"ontology OFF": {"score": 0, "verdict": "incorrect", "correct_points": [], "missed_or_wrong": ["GBU-39 and GBU-53B are not cluster munitions", "All four true ones missed"], "summary": "Entirely wrong."},
+        "ontology ON": {"score": 100, "verdict": "correct", "correct_points": ["All four types, sides and counts, total 53"], "missed_or_wrong": [], "summary": "All right."}},
+ "q4": {"ontology OFF": {"score": 25, "verdict": "incorrect", "correct_points": ["Some callsign groups coincide with units"], "missed_or_wrong": ["Grouped by callsign prefix, not unit"], "summary": "Callsign proxy, not units."},
+        "ontology ON": {"score": 80, "verdict": "partially_correct", "correct_points": ["22nd ARW 1, 140 EAW 2, 52nd FW 2, 388th FW 2 and all zero-loss units right"],
+          "missed_or_wrong": ["11th Masurian 1, should be 2 (KRAB34 missed)", "1st ABCT 7, should be 8 (COBRA13 missed)"], "summary": "14 of 16 units right."}},
+ "q5": {"ontology OFF": {"score": 0, "verdict": "incorrect", "correct_points": [], "missed_or_wrong": ["BEREZA (Buk) and KAMEN (ATGM) judged capable", "2nd S-400 and Tor not identified"], "summary": "Wrong units and verdicts."},
+        "ontology ON": {"score": 75, "verdict": "partially_correct", "correct_points": ["Exactly the 4 Red SAM battalions", "2nd S-400 capable, with the right engagement radar (92N6E)", "1st S-400 and Buk not capable"],
+          "missed_or_wrong": ["Tor judged not capable: counted only ACTIVE as operational despite the DAMAGED note"], "summary": "Three of four verdicts right."}},
+ "q6": {"ontology OFF": {"score": 5, "verdict": "incorrect", "correct_points": ["Killing weapons named"], "missed_or_wrong": ["UK guessed as Germany, Poland as Ukraine", "Norway missed", "Categories wrong (48N6E3 called anti-ship, 9M55K air-to-surface)"], "summary": "Wrong nations and categories."},
+        "ontology ON": {"score": 100, "verdict": "correct", "correct_points": ["Total 5, nations from the ontology, all weapons and categories right"], "missed_or_wrong": [], "summary": "All right."}}
+}

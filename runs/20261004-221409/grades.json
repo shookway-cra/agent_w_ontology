@@ -1,0 +1,123 @@
+{
+  "q0": {
+    "ontology OFF": {
+      "score": 65, "verdict": "partially_correct",
+      "correct_points": ["Blue fired 598", "Red fired 452", "Total 1050"],
+      "missed_or_wrong": ["Most-fired weapon is M795 (116), not S-8KOM (48)"],
+      "summary": "Side totals are right; the most-fired weapon is wrong (it appears to have read a partial weapon list from describe_database rather than counting)."
+    },
+    "ontology ON": {
+      "score": 100, "verdict": "correct",
+      "correct_points": ["Blue fired 598", "Red fired 452", "Most-fired weapon M795 with 116"],
+      "missed_or_wrong": [],
+      "summary": "All three parts match the ground truth."
+    }
+  },
+  "q1": {
+    "ontology OFF": {
+      "score": 15, "verdict": "incorrect",
+      "correct_points": ["Blue MBDA_METEOR 7, AIM-132 3, WPN_KESTREL 8", "Red R-37M 2"],
+      "missed_or_wrong": ["Blue total 67, should be 52", "Red total 19, should be 22",
+        "Red R-77-1 (12) and R-73M (5) counted under Blue", "Blue AIM-9X_BLK2 (4) counted under Red",
+        "Red IZDELIYE_610M (3) missing", "AIM-120 variants lumped together as 32 (truth: C7 6 + D 16 + WPN_AMRAAM_D 8 = 30)"],
+      "summary": "Both totals are wrong and several types are attributed to the wrong side; only four per-type counts are right."
+    },
+    "ontology ON": {
+      "score": 0, "verdict": "incorrect",
+      "correct_points": [],
+      "missed_or_wrong": ["Blue total 59, should be 52", "Red total 19, should be 22",
+        "AMRAAM-ER included after overriding the ontology's (correct) SAM classification",
+        "Red types (R-77-1, R-37M, R-73M) listed under Blue", "No per-type counts; Red breakdown says 'same weapon types as Blue'",
+        "WPN_KESTREL and IZDELIYE_610M missing"],
+      "summary": "Both totals are wrong, and it explicitly overrode the ontology's correct exclusion of AMRAAM-ER using its own background knowledge."
+    }
+  },
+  "q2": {
+    "ontology OFF": {
+      "score": 15, "verdict": "incorrect",
+      "correct_points": ["Guided artillery projectiles: 10 (M982A1)"],
+      "missed_or_wrong": ["Total 255, should be 272",
+        "Missiles 105, should be 120: RGM-184A (8) wrongly excluded as a SAM, TRIDENT_GLIDE_KIT wrongly included",
+        "Guided bombs 94, should be 84: XM1113 and GEM-T wrongly included, TRIDENT_GLIDE_KIT missing",
+        "Guided rockets 46, should be 50: unguided HYDRA70_M151 included, SB600 misfiled here, M30A2/M31A2 wrongly excluded as unguided",
+        "Loitering munitions 0, should be 8 (SB600)"],
+      "summary": "Only one of five categories is right; several unguided weapons are counted and several guided ones are excluded."
+    },
+    "ontology ON": {
+      "score": 25, "verdict": "incorrect",
+      "correct_points": ["All 11 true missile types listed with correct counts", "GBU-12, GBU-31V3, GBU-39, GBU-53B correct",
+        "APKWS_II 14 correct", "Guided artillery projectiles: 10 (M982A1)"],
+      "missed_or_wrong": ["Total 286, should be 272",
+        "Missiles 162, should be 120: GEM-T (a SAM), TRIDENT_GLIDE_KIT (a bomb) and XM1113 (unguided) wrongly included",
+        "Guided bombs 68, should be 84: TRIDENT_GLIDE_KIT missing",
+        "Guided rockets 46, should be 50: unguided HYDRA70_M151 included, M30A2/M31A2 excluded, SB600 misfiled",
+        "Loitering munitions 0, should be 8 (SB600)"],
+      "summary": "Per-type counts are mostly right, but misclassifications leave the total and four of five category totals wrong."
+    }
+  },
+  "q3": {
+    "ontology OFF": {
+      "score": 0, "verdict": "incorrect",
+      "correct_points": [],
+      "missed_or_wrong": ["None of the four true cluster munitions identified (MGM-140B, 3O23, 9M55K, BURYA-12)",
+        "3OF26, 3OF39, 3OF45 (HE rounds) and S-8KOM wrongly classed as cluster munitions", "Total 128, should be 53"],
+      "summary": "Entirely wrong: it guessed cluster munitions from designations and picked none of the right ones."
+    },
+    "ontology ON": {
+      "score": 45, "verdict": "partially_correct",
+      "correct_points": ["3O23, Red, 14", "9M55K, Red, 24"],
+      "missed_or_wrong": ["MGM-140B (Blue, 3) missing; it looked for 'ATACMS_BlkIA' and found no firings", "BURYA-12 (Red, 12) missing",
+        "Total 38, should be 53"],
+      "summary": "Two of four cluster munitions correct with right sides and counts; missed two, including the only Blue one."
+    }
+  },
+  "q4": {
+    "ontology OFF": {
+      "score": 10, "verdict": "incorrect",
+      "correct_points": ["Total 18 Blue platforms destroyed", "Correct list of the 18 destroyed platforms"],
+      "missed_or_wrong": ["No per-unit breakdown; wrongly concluded unit hierarchy is unavailable",
+        "All six units with losses missing (1st ABCT 8, 11th Masurian 2, 140 EAW 2, 388th FW 2, 52nd FW 2, 22nd ARW 1)"],
+      "summary": "Right total and platform list but gave up on the per-unit question, which was the point."
+    },
+    "ontology ON": {
+      "score": 0, "verdict": "incorrect",
+      "correct_points": [],
+      "missed_or_wrong": ["Claimed no Blue brigade-level units exist; there are 16",
+        "Wrongly said the ontology has no Regiment or Wing echelons", "Total 0 destroyed, should be 18"],
+      "summary": "Wrong: a single echelon query returned nothing and it concluded there were no such units."
+    }
+  },
+  "q5": {
+    "ontology OFF": {
+      "score": 5, "verdict": "incorrect",
+      "correct_points": ["Implicitly says separate-component battalions are not capable, which holds for the Buk and 1st S-400 battalions"],
+      "missed_or_wrong": ["No Red battalion identified by name", "Reasoned over Blue equipment (M-SHORAD_INC1, NASAMS, MPQ-65) instead of Red",
+        "2nd S-400 Battalion is capable, not counted", "Tor battalion is capable, not identified"],
+      "summary": "Analysed the wrong side's equipment and identified none of the four Red battalions."
+    },
+    "ontology ON": {
+      "score": 10, "verdict": "incorrect",
+      "correct_points": ["Used Red equipment types", "Implicitly says separate-component battalions are not capable, which holds for the Buk and 1st S-400 battalions"],
+      "missed_or_wrong": ["No battalion identified by name", "2nd S-400 Battalion is capable, judged not capable",
+        "Tor battalion is capable but its Tor-M2 was judged non-operational", "Pantsir named as the capable unit; it is not one of the four SAM battalions"],
+      "summary": "Looked at the right side but counted equipment types instead of battalions and got both capable battalions wrong."
+    }
+  },
+  "q6": {
+    "ontology OFF": {
+      "score": 45, "verdict": "partially_correct",
+      "correct_points": ["UK 2 (48N6E3, R-73M)", "Poland 2 (9M55K)", "Norway 1 (9M542)"],
+      "missed_or_wrong": ["Total 7, should be 5", "Netherlands 2 wrongly included (nation guessed from the aircraft type)",
+        "Weapon names given but not weapon categories, which the question asked for"],
+      "summary": "Per-nation counts and killing weapons are right for all three real nations, but it added two Dutch losses by guessing nationality."
+    },
+    "ontology ON": {
+      "score": 25, "verdict": "incorrect",
+      "correct_points": ["UK 2", "Norway 1"],
+      "missed_or_wrong": ["Total 3, should be 5", "Poland (2, 9M55K cluster artillery rocket) missed",
+        "UK categories wrong: one was a SAM (48N6E3), one an AAM (R-73M); it cited AIM-120D, a Blue weapon",
+        "Norway category wrong: guided artillery rocket (9M542), not SAM; it cited RIM-162D, a Blue weapon"],
+      "summary": "Two of three nations counted correctly, but Poland missed and every weapon category wrong (it cited Blue weapons as the killers)."
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+ "q5": {"ontology OFF": {"score": 10, "verdict": "incorrect", "correct_points": ["Tor judged capable"],
+          "missed_or_wrong": ["Buk and 2nd S-400 battalions not identified; 'S-400 battalion' built from Buk platforms", "METEL (rocket artillery), SHTORM and KORNET (ATGM) treated as SAM battalions"], "summary": "Mostly wrong units."},
+        "ontology ON": {"score": 50, "verdict": "partially_correct",
+          "correct_points": ["Identified exactly the 4 Red SAM battalions via bs:SAMBattalion, with the right kinds (3 integrated, 1 SHORAD)", "Buk and 1st S-400 correctly NOT capable"],
+          "missed_or_wrong": ["2nd S-400 battalion judged not capable; it is capable", "Tor battalion judged not capable; it is capable",
+            "Treated DAMAGED platforms as non-operational (the ground truth counts only destroyed platforms as lost)", "Some launcher/radar role assignments mixed up"],
+          "summary": "Right battalions from the ontology; wrong verdicts on the two capable ones, mainly from reading DAMAGED as out of action."}},
+ "q6": {"ontology OFF": {"score": 10, "verdict": "incorrect", "correct_points": ["UK pair's killing weapons and categories"],
+          "missed_or_wrong": ["UK guessed as Germany, Poland as Russia", "Norway missed; total 4, should be 5", "9M55K called a SAM"], "summary": "Wrong nations from guessing."},
+        "ontology ON": {"score": 100, "verdict": "correct", "correct_points": ["Total 5", "Norway 1, Poland 2, UK 2 from ontology nations", "All five weapons and categories right"], "missed_or_wrong": [], "summary": "All right."}}
+}
